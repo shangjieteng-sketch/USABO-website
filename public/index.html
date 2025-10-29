@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>USABO Study Platform</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>USABO Study Platform</h2>
+            </div>
+            <div class="nav-menu">
+                <a href="#home" class="nav-link">Home</a>
+                <a href="#textbook" class="nav-link">Textbook</a>
+                <a href="#experiments" class="nav-link">Experiments</a>
+                <a href="#problems" class="nav-link">Problem Sets</a>
+                <a href="#community" class="nav-link">Community</a>
+                <a href="#ai-agent" class="nav-link">AI Agent</a>
+                <button id="loginBtn" class="nav-btn">Login</button>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="hero">
+                <h1>USABO Study Platform</h1>
+                <p>Your comprehensive resource for USA Biology Olympiad preparation</p>
+                <div class="feature-grid">
+                    <div class="feature-card" onclick="navigateToSection('textbook')">
+                        <i class="fas fa-book"></i>
+                        <h3>Textbook Materials</h3>
+                        <p>Comprehensive study materials with molecular diagrams and detailed explanations</p>
+                    </div>
+                    <div class="feature-card" onclick="navigateToSection('experiments')">
+                        <i class="fas fa-flask"></i>
+                        <h3>Interactive Experiments</h3>
+                        <p>Virtual lab demonstrations and experiment methodologies</p>
+                    </div>
+                    <div class="feature-card" onclick="navigateToSection('problems')">
+                        <i class="fas fa-brain"></i>
+                        <h3>Problem Sets</h3>
+                        <p>Practice questions, real test problems, and AI-generated challenges</p>
+                    </div>
+                    <div class="feature-card" onclick="navigateToSection('community')">
+                        <i class="fas fa-users"></i>
+                        <h3>Community</h3>
+                        <p>Chat with fellow students and use memory card quizzes</p>
+                    </div>
+                    <div class="feature-card" onclick="navigateToSection('ai-agent')">
+                        <i class="fas fa-robot"></i>
+                        <h3>AI Study Assistant</h3>
+                        <p>Get personalized help and explanations from our AI tutor</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Textbook Section -->
+        <section id="textbook" class="section">
+            <div class="container">
+                <h2>Textbook Materials</h2>
+                <div class="textbook-grid">
+                    <div class="chapter-card">
+                        <div class="chapter-icon">🧬</div>
+                        <h3>Molecular Biology</h3>
+                        <p>DNA, RNA, protein synthesis, and molecular mechanisms</p>
+                        <button class="btn-primary">Study Chapter</button>
+                    </div>
+                    <div class="chapter-card">
+                        <div class="chapter-icon">🔬</div>
+                        <h3>Cell Biology</h3>
+                        <p>Cell structure, organelles, and cellular processes</p>
+                        <button class="btn-primary">Study Chapter</button>
+                    </div>
+                    <div class="chapter-card">
+                        <div class="chapter-icon">🌿</div>
+                        <h3>Plant Biology</h3>
+                        <p>Plant anatomy, physiology, and development</p>
+                        <button class="btn-primary">Study Chapter</button>
+                    </div>
+                    <div class="chapter-card">
+                        <div class="chapter-icon">🦠</div>
+                        <h3>Microbiology</h3>
+                        <p>Bacteria, viruses, and microbial systems</p>
+                        <button class="btn-primary">Study Chapter</button>
+                    </div>
+                    <div class="chapter-card">
+                        <div class="chapter-icon">🧪</div>
+                        <h3>Biochemistry</h3>
+                        <p>Metabolic pathways and chemical processes</p>
+                        <button class="btn-primary">Study Chapter</button>
+                    </div>
+                    <div class="chapter-card">
+                        <div class="chapter-icon">🧠</div>
+                        <h3>Animal Physiology</h3>
+                        <p>Organ systems and physiological processes</p>
+                        <button class="btn-primary">Study Chapter</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Experiments Section -->
+        <section id="experiments" class="section">
+            <div class="container">
+                <h2>Interactive Experiments</h2>
+                <div class="experiment-categories">
+                    <div class="category-tab active" data-category="molecular">Molecular Techniques</div>
+                    <div class="category-tab" data-category="microscopy">Microscopy</div>
+                    <div class="category-tab" data-category="biochemical">Biochemical Assays</div>
+                    <div class="category-tab" data-category="genetics">Genetic Analysis</div>
+                </div>
+                <div class="experiment-content">
+                    <div class="experiment-item">
+                        <h3>PCR Amplification</h3>
+                        <p>Learn the principles and steps of Polymerase Chain Reaction</p>
+                        <button class="btn-secondary">Start Simulation</button>
+                    </div>
+                    <div class="experiment-item">
+                        <h3>Gel Electrophoresis</h3>
+                        <p>Understand DNA separation and analysis techniques</p>
+                        <button class="btn-secondary">Start Simulation</button>
+                    </div>
+                    <div class="experiment-item">
+                        <h3>Enzyme Kinetics</h3>
+                        <p>Explore enzyme activity and inhibition patterns</p>
+                        <button class="btn-secondary">Start Simulation</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Problem Sets Section -->
+        <section id="problems" class="section">
+            <div class="container">
+                <h2>Problem Sets</h2>
+                <div class="problem-types">
+                    <div class="problem-card">
+                        <h3>Chapter Problems</h3>
+                        <p>Organized by textbook chapters</p>
+                        <button class="btn-primary">Browse</button>
+                    </div>
+                    <div class="problem-card">
+                        <h3>Past USABO Questions</h3>
+                        <p>Real competition problems</p>
+                        <button class="btn-primary">Practice</button>
+                    </div>
+                    <div class="problem-card">
+                        <h3>AI-Generated Problems</h3>
+                        <p>Custom practice questions</p>
+                        <button class="btn-primary">Generate</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Community Section -->
+        <section id="community" class="section">
+            <div class="container">
+                <h2>Community Features</h2>
+                <div class="community-grid">
+                    <div class="community-feature">
+                        <h3>Study Chat</h3>
+                        <div id="chatContainer" class="chat-container">
+                            <div id="chatMessages" class="chat-messages"></div>
+                            <div class="chat-input-container">
+                                <input type="text" id="chatInput" placeholder="Type your message...">
+                                <button id="sendMessage">Send</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="community-feature">
+                        <h3>Memory Cards</h3>
+                        <p>Quizlet-style flashcards for quick review</p>
+                        <button class="btn-primary" onclick="startMemoryCards()">Start Cards</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Agent Section -->
+        <section id="ai-agent" class="section">
+            <div class="container">
+                <h2>AI Study Assistant</h2>
+                <div class="ai-chat-container">
+                    <div id="aiChatMessages" class="ai-chat-messages"></div>
+                    <div class="ai-input-container">
+                        <input type="text" id="aiInput" placeholder="Ask me anything about biology...">
+                        <button id="sendAiMessage">Ask AI</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>Student Login</h2>
+            <form id="loginForm">
+                <input type="email" id="email" placeholder="Student Email" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <p>Don't have an account? <a href="#" id="registerLink">Register here</a></p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
