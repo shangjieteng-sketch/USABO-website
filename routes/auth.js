@@ -1,19 +1,98 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
+const GitHubStrategy = require('passport-github2').Strategy;
 const router = express.Router();
 
 // In-memory user storage (replace with database in production)
 const users = [];
+
+// Configure Passport strategies only if environment variables are set
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    passport.use(new GoogleStrategy({
+        clientID: process.env.GOOGLE_CLIENT_ID,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+        callbackURL: "/api/auth/google/callback"
+    }, async (accessToken, refreshToken, profile, done) => {
+        try {
+            // Check if user already exists
+            let user = users.find(user => user.googleId === profile.id);
+            
+            if (user) {
+                return done(null, user);
+            }
+            
+            // Create new user
+            user = {
+                id: users.length + 1,
+                googleId: profile.id,
+                name: profile.displayName,
+                email: profile.emails[0].value,
+                avatar: profile.photos[0].value,
+                provider: 'google',
+                createdAt: new Date()
+            };
+            
+            users.push(user);
+            return done(null, user);
+        } catch (error) {
+            return done(error, null);
+        }
+    }));
+}
+
+if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+    passport.use(new GitHubStrategy({
+        clientID: process.env.GITHUB_CLIENT_ID,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET,
+        callbackURL: "/api/auth/github/callback"
+    }, async (accessToken, refreshToken, profile, done) => {
+        try {
+            // Check if user already exists
+            let user = users.find(user => user.githubId === profile.id);
+            
+            if (user) {
+                return done(null, user);
+            }
+            
+            // Create new user
+            user = {
+                id: users.length + 1,
+                githubId: profile.id,
+                name: profile.displayName || profile.username,
+                email: profile.emails ? profile.emails[0].value : `${profile.username}@github.local`,
+                avatar: profile.photos[0].value,
+                provider: 'github',
+                createdAt: new Date()
+            };
+            
+            users.push(user);
+            return done(null, user);
+        } catch (error) {
+            return done(error, null);
+        }
+    }));
+}
+
+passport.serializeUser((user, done) => {
+    done(null, user.id);
+});
+
+passport.deserializeUser((id, done) => {
+    const user = users.find(user => user.id === id);
+    done(null, user);
+});
 
 // Register endpoint
 router.post('/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
         
-        // Validate student email (basic validation - enhance as needed)
-        if (!email.includes('.edu') && !email.includes('student')) {
-            return res.status(400).json({ message: 'Please use a valid student email address' });
+        // Basic email validation
+        if (!email || !email.includes('@')) {
+            return res.status(400).json({ message: 'Please provide a valid email address' });
         }
         
         // Check if user already exists
@@ -131,5 +210,84 @@ function authenticateToken(req, res, next) {
         next();
     });
 }
+
+// Google OAuth routes (only if configured)
+if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
+    router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+    router.get('/google/callback', 
+        passport.authenticate('google', { session: false }),
+        (req, res) => {
+            // Generate JWT token
+            const token = jwt.sign(
+                { userId: req.user.id, email: req.user.email },
+                process.env.JWT_SECRET || 'fallback_secret',
+                { expiresIn: '7d' }
+            );
+            
+            // Redirect to frontend with token
+            res.redirect(`/?token=${token}&user=${encodeURIComponent(JSON.stringify({
+                id: req.user.id,
+                name: req.user.name,
+                email: req.user.email,
+                avatar: req.user.avatar
+            }))}`);
+        }
+    );
+} else {
+    // Fallback route when Google OAuth is not configured
+    router.get('/google', (req, res) => {
+        res.status(501).json({ message: 'Google OAuth not configured' });
+    });
+}
+
+// GitHub OAuth routes (only if configured)
+if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
+    router.get('/github', passport.authenticate('github', { scope: ['user:email'] }));
+
+    router.get('/github/callback',
+        passport.authenticate('github', { session: false }),
+        (req, res) => {
+            // Generate JWT token
+            const token = jwt.sign(
+                { userId: req.user.id, email: req.user.email },
+                process.env.JWT_SECRET || 'fallback_secret',
+                { expiresIn: '7d' }
+            );
+            
+            // Redirect to frontend with token
+            res.redirect(`/?token=${token}&user=${encodeURIComponent(JSON.stringify({
+                id: req.user.id,
+                name: req.user.name,
+                email: req.user.email,
+                avatar: req.user.avatar
+            }))}`);
+        }
+    );
+} else {
+    // Fallback route when GitHub OAuth is not configured
+    router.get('/github', (req, res) => {
+        res.status(501).json({ message: 'GitHub OAuth not configured' });
+    });
+}
+
+// Check which OAuth providers are configured
+router.get('/config', (req, res) => {
+    res.json({
+        google: !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET),
+        github: !!(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET)
+    });
+});
+
+// Debug endpoint to see registered users (remove in production)
+router.get('/users', (req, res) => {
+    const sanitizedUsers = users.map(user => ({
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        createdAt: user.createdAt
+    }));
+    res.json(sanitizedUsers);
+});
 
 module.exports = router;

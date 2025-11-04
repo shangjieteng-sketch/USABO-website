@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug</title>
+</head>
+<body>
+    <h1>Debug Registration</h1>
+    
+    <script>
+        console.log("Testing if elements exist:");
+        
+        fetch('http://localhost:3001')
+            .then(response => response.text())
+            .then(html => {
+                document.body.innerHTML = html;
+                
+                console.log("registerModal:", document.getElementById('registerModal'));
+                console.log("registerForm:", document.getElementById('registerForm'));
+                console.log("regName:", document.getElementById('regName'));
+                console.log("regEmail:", document.getElementById('regEmail'));
+                console.log("registerLink:", document.getElementById('registerLink'));
+                
+                // Test if form submission works
+                const form = document.getElementById('registerForm');
+                if (form) {
+                    console.log("Form found, adding test listener");
+                    form.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        console.log("Form submitted!");
+                        
+                        const name = document.getElementById('regName').value;
+                        const email = document.getElementById('regEmail').value;
+                        const password = document.getElementById('regPassword').value;
+                        
+                        console.log("Form data:", { name, email, password });
+                        
+                        // Test API call
+                        fetch('/api/auth/register', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name, email, password })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            console.log("API Response:", data);
+                        })
+                        .catch(err => {
+                            console.error("API Error:", err);
+                        });
+                    });
+                } else {
+                    console.log("Form NOT found");
+                }
+            });
+    </script>
+</body>
+</html>

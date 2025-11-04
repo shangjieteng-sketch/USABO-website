@@ -204,12 +204,64 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>Student Login</h2>
+            
+            <!-- OAuth Login Options -->
+            <div class="oauth-buttons">
+                <a href="/api/auth/google" class="oauth-btn google-btn">
+                    <i class="fab fa-google"></i>
+                    Continue with Google
+                </a>
+                <a href="/api/auth/github" class="oauth-btn github-btn">
+                    <i class="fab fa-github"></i>
+                    Continue with GitHub
+                </a>
+            </div>
+            
+            <div class="divider">
+                <span>OR</span>
+            </div>
+            
+            <!-- Traditional Login Form -->
             <form id="loginForm">
-                <input type="email" id="email" placeholder="Student Email" required>
+                <input type="email" id="email" placeholder="Email Address" required>
                 <input type="password" id="password" placeholder="Password" required>
-                <button type="submit">Login</button>
+                <button type="submit">Login with Email</button>
             </form>
             <p>Don't have an account? <a href="#" id="registerLink">Register here</a></p>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content">
+            <span class="close" id="closeRegister">&times;</span>
+            <h2>Student Registration</h2>
+            
+            <!-- OAuth Registration Options -->
+            <div class="oauth-buttons">
+                <a href="/api/auth/google" class="oauth-btn google-btn">
+                    <i class="fab fa-google"></i>
+                    Sign up with Google
+                </a>
+                <a href="/api/auth/github" class="oauth-btn github-btn">
+                    <i class="fab fa-github"></i>
+                    Sign up with GitHub
+                </a>
+            </div>
+            
+            <div class="divider">
+                <span>OR</span>
+            </div>
+            
+            <!-- Traditional Registration Form -->
+            <form id="registerForm">
+                <input type="text" id="regName" placeholder="Full Name" required>
+                <input type="email" id="regEmail" placeholder="Email Address" required>
+                <input type="password" id="regPassword" placeholder="Password" required>
+                <input type="password" id="regConfirmPassword" placeholder="Confirm Password" required>
+                <button type="submit">Create Account</button>
+            </form>
+            <p>Already have an account? <a href="#" id="loginLink">Login here</a></p>
         </div>
     </div>
 

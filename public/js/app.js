@@ -31,26 +31,62 @@ document.querySelectorAll('.nav-link').forEach(link => {
 
 // Modal functionality
 const loginModal = document.getElementById('loginModal');
+const registerModal = document.getElementById('registerModal');
 const loginBtn = document.getElementById('loginBtn');
 const closeModal = document.querySelector('.close');
+const closeRegister = document.getElementById('closeRegister');
+const registerLink = document.getElementById('registerLink');
+const loginLink = document.getElementById('loginLink');
 
-loginBtn.addEventListener('click', () => {
-    loginModal.style.display = 'block';
-});
 
-closeModal.addEventListener('click', () => {
-    loginModal.style.display = 'none';
-});
+if (loginBtn) {
+    loginBtn.addEventListener('click', () => {
+        if (loginModal) loginModal.style.display = 'block';
+    });
+}
+
+if (registerLink) {
+    registerLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (loginModal) loginModal.style.display = 'none';
+        if (registerModal) registerModal.style.display = 'block';
+    });
+}
+
+if (loginLink) {
+    loginLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (registerModal) registerModal.style.display = 'none';
+        if (loginModal) loginModal.style.display = 'block';
+    });
+}
+
+if (closeModal) {
+    closeModal.addEventListener('click', () => {
+        if (loginModal) loginModal.style.display = 'none';
+    });
+}
+
+if (closeRegister) {
+    closeRegister.addEventListener('click', () => {
+        if (registerModal) registerModal.style.display = 'none';
+    });
+}
 
 window.addEventListener('click', (e) => {
-    if (e.target === loginModal) {
+    if (loginModal && e.target === loginModal) {
         loginModal.style.display = 'none';
+    }
+    if (registerModal && e.target === registerModal) {
+        registerModal.style.display = 'none';
     }
 });
 
-// Login form submission
-document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+// Login form submission  
+const loginForm = document.getElementById('loginForm');
+if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
     
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
@@ -78,12 +114,74 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
         console.error('Login error:', error);
         alert('Login failed. Please try again.');
     }
-});
+    });
+}
+
+// Register form submission
+const registerForm = document.getElementById('registerForm');
+
+if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+    
+    const name = document.getElementById('regName').value;
+    const email = document.getElementById('regEmail').value;
+    const password = document.getElementById('regPassword').value;
+    const confirmPassword = document.getElementById('regConfirmPassword').value;
+    
+    // Validate passwords match
+    if (password !== confirmPassword) {
+        alert('Passwords do not match');
+        return;
+    }
+    
+    // Basic email validation
+    if (!email.includes('@') || !email.includes('.')) {
+        alert('Please enter a valid email address');
+        return;
+    }
+    
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, email, password })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            registerModal.style.display = 'none';
+            updateUIForLoggedInUser(data.user);
+            alert('Registration successful! Welcome to USABO Study Platform.');
+        } else {
+            alert(data.message || 'Registration failed');
+        }
+    } catch (error) {
+        console.error('Registration error:', error);
+        alert('Registration failed. Please try again.');
+    }
+    });
+}
 
 // Update UI for logged in user
 function updateUIForLoggedInUser(user) {
-    loginBtn.textContent = `Welcome, ${user.name}`;
+    if (user.avatar) {
+        // Show avatar for OAuth users
+        loginBtn.innerHTML = `
+            <img src="${user.avatar}" alt="Profile" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px;">
+            ${user.name}
+        `;
+    } else {
+        loginBtn.textContent = `Welcome, ${user.name}`;
+    }
     loginBtn.style.background = '#27ae60';
+    loginBtn.style.display = 'flex';
+    loginBtn.style.alignItems = 'center';
     
     // Enable chat functionality
     enableChatFeatures();
@@ -223,14 +321,66 @@ function startMemoryCards() {
     alert('Memory Cards feature will be implemented with Quizlet-style functionality. See documentation for details.');
 }
 
+// Check OAuth configuration and hide buttons if not configured
+async function checkOAuthConfig() {
+    try {
+        const response = await fetch('/api/auth/config');
+        const config = await response.json();
+        
+        // Hide OAuth buttons if not configured
+        const oauthButtons = document.querySelectorAll('.oauth-buttons');
+        const dividers = document.querySelectorAll('.divider');
+        
+        if (!config.google && !config.github) {
+            // Hide all OAuth sections if no providers are configured
+            oauthButtons.forEach(section => section.style.display = 'none');
+            dividers.forEach(divider => divider.style.display = 'none');
+        } else {
+            // Hide individual buttons for unconfigured providers
+            if (!config.google) {
+                document.querySelectorAll('.google-btn').forEach(btn => btn.style.display = 'none');
+            }
+            if (!config.github) {
+                document.querySelectorAll('.github-btn').forEach(btn => btn.style.display = 'none');
+            }
+        }
+    } catch (error) {
+        console.error('Error checking OAuth config:', error);
+        // Hide OAuth buttons on error
+        document.querySelectorAll('.oauth-buttons').forEach(section => section.style.display = 'none');
+        document.querySelectorAll('.divider').forEach(divider => divider.style.display = 'none');
+    }
+}
+
 // Check if user is already logged in
-window.addEventListener('load', () => {
-    const token = localStorage.getItem('token');
-    const user = localStorage.getItem('user');
+window.addEventListener('load', async () => {
+    // Check OAuth configuration first
+    await checkOAuthConfig();
+    // Check for OAuth redirect with token in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const userParam = urlParams.get('user');
     
-    if (token && user) {
-        const userData = JSON.parse(user);
+    if (token && userParam) {
+        // Store OAuth login data
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', userParam);
+        
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        // Update UI
+        const userData = JSON.parse(decodeURIComponent(userParam));
         updateUIForLoggedInUser(userData);
+    } else {
+        // Check for existing login
+        const storedToken = localStorage.getItem('token');
+        const storedUser = localStorage.getItem('user');
+        
+        if (storedToken && storedUser) {
+            const userData = JSON.parse(storedUser);
+            updateUIForLoggedInUser(userData);
+        }
     }
 });
 
@@ -257,5 +407,70 @@ document.addEventListener('click', (e) => {
     if (e.target.textContent === 'Browse' || e.target.textContent === 'Practice' || e.target.textContent === 'Generate') {
         const problemType = e.target.parentElement.querySelector('h3').textContent;
         browseProblemSet(problemType);
+    }
+});
+
+// Textbook functionality
+async function studyChapter(chapterTitle) {
+    try {
+        const response = await fetch('/api/textbook/chapters');
+        const data = await response.json();
+        
+        const chapter = data.chapters.find(ch => ch.title === chapterTitle);
+        if (chapter) {
+            const detailResponse = await fetch(`/api/textbook/chapters/${chapter.id}`);
+            const chapterData = await detailResponse.json();
+            
+            showChapterModal(chapterData);
+        }
+    } catch (error) {
+        console.error('Error loading chapter:', error);
+        alert('Failed to load chapter. Please try again.');
+    }
+}
+
+function showChapterModal(chapter) {
+    const modalHtml = `
+        <div id="chapterModal" class="modal" style="display: block;">
+            <div class="modal-content" style="max-width: 800px; max-height: 80vh; overflow-y: auto;">
+                <span class="close" onclick="closeChapterModal()">&times;</span>
+                <h2>${chapter.icon} ${chapter.title}</h2>
+                <p>${chapter.description}</p>
+                <div class="chapter-sections">
+                    ${chapter.sections.map(section => `
+                        <div class="section-item" style="margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+                            <h3>${section.title}</h3>
+                            <p>${section.content}</p>
+                            <div class="diagrams">
+                                ${section.diagrams.map(diagram => `
+                                    <div class="diagram-placeholder" style="margin: 10px 0; padding: 20px; background: #f5f5f5; border-radius: 4px; text-align: center;">
+                                        <strong>${diagram.title}</strong><br>
+                                        <em>Type: ${diagram.type}</em><br>
+                                        <small>Diagram placeholder - will be replaced with actual molecular diagrams</small>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function closeChapterModal() {
+    const modal = document.getElementById('chapterModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Add click handlers for textbook Study Chapter buttons
+document.addEventListener('click', (e) => {
+    if (e.target.textContent === 'Study Chapter') {
+        const chapterTitle = e.target.parentElement.querySelector('h3').textContent;
+        studyChapter(chapterTitle);
     }
 });
