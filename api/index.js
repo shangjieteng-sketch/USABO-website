@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const passport = require('passport');
 const session = require('express-session');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -47,15 +48,15 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Static files
-app.use(express.static('public'));
+app.use(express.static('../public'));
 
 // Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/textbook', require('./routes/textbook'));
-app.use('/api/experiments', require('./routes/experiments'));
-app.use('/api/problems', require('./routes/problems'));
-app.use('/api/ai', require('./routes/ai'));
-app.use('/api/community', require('./routes/community'));
+app.use('/api/auth', require('../routes/auth'));
+app.use('/api/textbook', require('../routes/textbook'));
+app.use('/api/experiments', require('../routes/experiments'));
+app.use('/api/problems', require('../routes/problems'));
+app.use('/api/ai', require('../routes/ai'));
+app.use('/api/community', require('../routes/community'));
 
 // Socket.io for real-time chat
 io.on('connection', (socket) => {
@@ -77,10 +78,17 @@ io.on('connection', (socket) => {
 
 // Main route
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  res.sendFile(path.join(__dirname, '../public/index.html'));
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`USABO Website running on port ${PORT}`);
-});
+
+// For Vercel serverless deployment
+module.exports = app;
+
+// For local development
+if (require.main === module) {
+  server.listen(PORT, () => {
+    console.log(`USABO Website running on port ${PORT}`);
+  });
+}

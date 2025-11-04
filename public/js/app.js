@@ -104,7 +104,7 @@ if (loginForm) {
     
     try {
         console.log('Making fetch request to /api/auth/login');
-        const response = await fetch('/api/auth/login', {
+        const response = await fetch(`${window.location.origin}/api/auth/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -161,7 +161,7 @@ if (registerForm) {
     }
     
     try {
-        const response = await fetch('/api/auth/register', {
+        const response = await fetch(`${window.location.origin}/api/auth/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -283,7 +283,7 @@ async function sendAiMessage() {
     const loadingId = addAiMessage('Thinking...', 'ai');
     
     try {
-        const response = await fetch('/api/ai/chat', {
+        const response = await fetch(`${window.location.origin}/api/ai/chat`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -349,7 +349,7 @@ function startMemoryCards() {
 // Check OAuth configuration and hide buttons if not configured
 async function checkOAuthConfig() {
     try {
-        const response = await fetch('/api/auth/config');
+        const response = await fetch(`${window.location.origin}/api/auth/config`);
         const config = await response.json();
         
         // Hide OAuth buttons if not configured
@@ -447,12 +447,12 @@ document.addEventListener('click', (e) => {
 // Textbook functionality
 async function studyChapter(chapterTitle) {
     try {
-        const response = await fetch('/api/textbook/chapters');
+        const response = await fetch(`${window.location.origin}/api/textbook/chapters`);
         const data = await response.json();
         
         const chapter = data.chapters.find(ch => ch.title === chapterTitle);
         if (chapter) {
-            const detailResponse = await fetch(`/api/textbook/chapters/${chapter.id}`);
+            const detailResponse = await fetch(`${window.location.origin}/api/textbook/chapters/${chapter.id}`);
             const chapterData = await detailResponse.json();
             
             showChapterModal(chapterData);
