@@ -591,6 +591,19 @@ function initializeDashboardNavigation() {
     } else {
         console.log('Logout button not found in DOM');
     }
+    
+    // Dashboard AI Chat
+    const dashboardAiInput = document.getElementById('dashboardAiInput');
+    const sendDashboardAiMessage = document.getElementById('sendDashboardAiMessage');
+    
+    if (dashboardAiInput && sendDashboardAiMessage) {
+        sendDashboardAiMessage.addEventListener('click', () => sendDashboardAiMessage());
+        dashboardAiInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendDashboardAiMessage();
+            }
+        });
+    }
 }
 
 // Global logout function - must be accessible from onclick
@@ -619,20 +632,6 @@ window.handleLogout = function() {
     currentUser = null;
     
     alert('Logged out successfully');
-}
-    
-    // Dashboard AI Chat
-    const dashboardAiInput = document.getElementById('dashboardAiInput');
-    const sendDashboardAiMessage = document.getElementById('sendDashboardAiMessage');
-    
-    if (dashboardAiInput && sendDashboardAiMessage) {
-        sendDashboardAiMessage.addEventListener('click', () => sendDashboardAiMessage());
-        dashboardAiInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendDashboardAiMessage();
-            }
-        });
-    }
 }
 
 // Dashboard AI Chat functionality
