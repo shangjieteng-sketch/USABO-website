@@ -575,36 +575,44 @@ function initializeDashboardNavigation() {
     // Logout functionality
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
-        logoutBtn.addEventListener('click', () => {
-            // Clear stored user data
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            
-            // Reset UI
-            const loginBtn = document.getElementById('loginBtn');
-            if (loginBtn) {
-                loginBtn.textContent = 'Login';
-                loginBtn.style.background = '';
-                loginBtn.onclick = () => {
-                    const loginModal = document.getElementById('loginModal');
-                    if (loginModal) loginModal.style.display = 'block';
-                };
-            }
-            
-            // Navigate back to home
-            navigateToSection('home');
-            
-            // Reset current user
-            currentUser = null;
-        });
+        logoutBtn.addEventListener('click', handleLogout);
     }
+}
+
+// Global logout function
+function handleLogout() {
+    console.log('Logout clicked');
+    
+    // Clear stored user data
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    
+    // Reset UI
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        loginBtn.textContent = 'Login';
+        loginBtn.style.background = '';
+        loginBtn.onclick = () => {
+            const loginModal = document.getElementById('loginModal');
+            if (loginModal) loginModal.style.display = 'block';
+        };
+    }
+    
+    // Navigate back to home
+    navigateToSection('home');
+    
+    // Reset current user
+    currentUser = null;
+    
+    alert('Logged out successfully');
+}
     
     // Dashboard AI Chat
     const dashboardAiInput = document.getElementById('dashboardAiInput');
     const sendDashboardAiMessage = document.getElementById('sendDashboardAiMessage');
     
     if (dashboardAiInput && sendDashboardAiMessage) {
-        sendDashboardAiMessage.addEventListener('click', sendDashboardAiMessage);
+        sendDashboardAiMessage.addEventListener('click', () => sendDashboardAiMessage());
         dashboardAiInput.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 sendDashboardAiMessage();
