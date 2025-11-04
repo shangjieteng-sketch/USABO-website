@@ -1,9 +1,7 @@
 // Initialize Socket.IO
-console.log('app.js loaded');
 let socket;
 try {
     socket = io();
-    console.log('Socket.IO initialized');
 } catch (error) {
     console.error('Socket.IO failed to initialize:', error);
 }
@@ -91,19 +89,15 @@ window.addEventListener('click', (e) => {
 
 // Login form submission  
 const loginForm = document.getElementById('loginForm');
-console.log('Login form found:', !!loginForm);
 
 if (loginForm) {
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        console.log('Login form submitted');
     
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
-    console.log('Login attempt:', { email, password: '***' });
     
     try {
-        console.log('Making fetch request to /api/auth/login');
         const response = await fetch(`${window.location.origin}/api/auth/login`, {
             method: 'POST',
             headers: {
@@ -112,19 +106,14 @@ if (loginForm) {
             body: JSON.stringify({ email, password })
         });
         
-        console.log('Response status:', response.status);
         const data = await response.json();
-        console.log('Response data:', data);
         
         if (response.ok) {
-            console.log('Login successful, storing tokens');
             localStorage.setItem('token', data.token);
             localStorage.setItem('user', JSON.stringify(data.user));
             loginModal.style.display = 'none';
             updateUIForLoggedInUser(data.user);
-            alert('Login successful!');
         } else {
-            console.error('Login failed:', data.message);
             alert(data.message || 'Login failed');
         }
     } catch (error) {
@@ -136,12 +125,10 @@ if (loginForm) {
 
 // Register form submission
 const registerForm = document.getElementById('registerForm');
-console.log('Register form found:', !!registerForm);
 
 if (registerForm) {
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        console.log('Register form submitted');
     
     const name = document.getElementById('regName').value;
     const email = document.getElementById('regEmail').value;
@@ -176,7 +163,7 @@ if (registerForm) {
             localStorage.setItem('user', JSON.stringify(data.user));
             registerModal.style.display = 'none';
             updateUIForLoggedInUser(data.user);
-            alert('Registration successful! Welcome to USABO Study Platform.');
+            // Success message removed for cleaner UX
         } else {
             alert(data.message || 'Registration failed');
         }
@@ -377,17 +364,8 @@ async function checkOAuthConfig() {
     }
 }
 
-// DOM Ready check
-document.addEventListener('DOMContentLoaded', () => {
-    console.log('DOM loaded');
-    console.log('Login form available:', !!document.getElementById('loginForm'));
-    console.log('Register form available:', !!document.getElementById('registerForm'));
-    console.log('Login button available:', !!document.getElementById('loginBtn'));
-});
-
 // Check if user is already logged in
 window.addEventListener('load', async () => {
-    console.log('Window loaded');
     // Check OAuth configuration first
     await checkOAuthConfig();
     // Check for OAuth redirect with token in URL
