@@ -199,6 +199,261 @@
         </section>
     </main>
 
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="section dashboard-layout">
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <h3>USABO Dashboard</h3>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#dashboard-home" class="nav-link active" data-section="dashboard-home">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#dashboard-textbook" class="nav-link" data-section="dashboard-textbook">
+                            <i class="fas fa-book"></i>
+                            <span>Textbook</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#dashboard-experiments" class="nav-link" data-section="dashboard-experiments">
+                            <i class="fas fa-flask"></i>
+                            <span>Experiments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#dashboard-problems" class="nav-link" data-section="dashboard-problems">
+                            <i class="fas fa-brain"></i>
+                            <span>Problem Sets</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#dashboard-community" class="nav-link" data-section="dashboard-community">
+                            <i class="fas fa-users"></i>
+                            <span>Community</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#dashboard-ai" class="nav-link" data-section="dashboard-ai">
+                            <i class="fas fa-robot"></i>
+                            <span>AI Assistant</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#dashboard-progress" class="nav-link" data-section="dashboard-progress">
+                            <i class="fas fa-chart-line"></i>
+                            <span>Progress</span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <div class="user-profile" id="userProfile">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-info">
+                        <span class="user-name">Student</span>
+                        <small class="user-email">student@example.com</small>
+                    </div>
+                </div>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
+            </div>
+        </aside>
+        
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div class="header-left">
+                    <button class="back-to-home" id="backToHome">
+                        <i class="fas fa-arrow-left"></i>
+                        <span>Back to Home</span>
+                    </button>
+                </div>
+                <div class="header-right">
+                    <div class="header-search">
+                        <input type="text" placeholder="Search..." id="dashboardSearch">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+            </header>
+            
+            <div class="dashboard-content">
+                <!-- Dashboard Home -->
+                <div id="dashboard-home" class="dashboard-section active">
+                    <div class="welcome-section">
+                        <h1>Welcome to Your Study Dashboard</h1>
+                        <p>Your personalized learning hub for USABO preparation</p>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>12</h3>
+                                <p>Chapters Completed</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-flask"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>8</h3>
+                                <p>Experiments Done</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>95%</h3>
+                                <p>Average Score</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3>24h</h3>
+                                <p>Study Time</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="recent-activity">
+                        <h2>Recent Activity</h2>
+                        <div class="activity-list">
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-book"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Completed Cell Biology Chapter</h4>
+                                    <p>2 hours ago</p>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-flask"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Finished PCR Simulation</h4>
+                                    <p>1 day ago</p>
+                                </div>
+                            </div>
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <h4>Solved 15 Practice Problems</h4>
+                                    <p>2 days ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Textbook -->
+                <div id="dashboard-textbook" class="dashboard-section">
+                    <h1>Textbook Materials</h1>
+                    <div class="textbook-dashboard">
+                        <div class="chapter-progress">
+                            <h3>Chapter Progress</h3>
+                            <div class="progress-list">
+                                <div class="progress-item">
+                                    <span>Molecular Biology</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 85%"></div>
+                                    </div>
+                                    <span>85%</span>
+                                </div>
+                                <div class="progress-item">
+                                    <span>Cell Biology</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 100%"></div>
+                                    </div>
+                                    <span>100%</span>
+                                </div>
+                                <div class="progress-item">
+                                    <span>Plant Biology</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: 60%"></div>
+                                    </div>
+                                    <span>60%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Experiments -->
+                <div id="dashboard-experiments" class="dashboard-section">
+                    <h1>Virtual Experiments</h1>
+                    <div class="experiments-dashboard">
+                        <p>Experiment tracking and results will be displayed here.</p>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Problems -->
+                <div id="dashboard-problems" class="dashboard-section">
+                    <h1>Problem Sets</h1>
+                    <div class="problems-dashboard">
+                        <p>Practice problems and test scores will be displayed here.</p>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Community -->
+                <div id="dashboard-community" class="dashboard-section">
+                    <h1>Community</h1>
+                    <div class="community-dashboard">
+                        <p>Study groups and community features will be displayed here.</p>
+                    </div>
+                </div>
+                
+                <!-- Dashboard AI -->
+                <div id="dashboard-ai" class="dashboard-section">
+                    <h1>AI Study Assistant</h1>
+                    <div class="ai-dashboard">
+                        <div class="ai-chat-container">
+                            <div id="dashboardAiChatMessages" class="ai-chat-messages"></div>
+                            <div class="ai-input-container">
+                                <input type="text" id="dashboardAiInput" placeholder="Ask me anything about biology...">
+                                <button id="sendDashboardAiMessage">Ask AI</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Dashboard Progress -->
+                <div id="dashboard-progress" class="dashboard-section">
+                    <h1>Study Progress</h1>
+                    <div class="progress-dashboard">
+                        <p>Detailed progress analytics will be displayed here.</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </section>
+
     <!-- Login Modal -->
     <div id="loginModal" class="modal">
         <div class="modal-content">

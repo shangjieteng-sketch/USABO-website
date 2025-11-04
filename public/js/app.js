@@ -189,8 +189,35 @@ function updateUIForLoggedInUser(user) {
     loginBtn.style.display = 'flex';
     loginBtn.style.alignItems = 'center';
     
+    // Update dashboard user profile
+    updateDashboardProfile(user);
+    
     // Enable chat functionality
     enableChatFeatures();
+    
+    // Change login button to dashboard access
+    loginBtn.onclick = () => navigateToSection('dashboard');
+    loginBtn.innerHTML = `
+        <i class="fas fa-tachometer-alt" style="margin-right: 8px;"></i>
+        Dashboard
+    `;
+}
+
+// Update dashboard user profile
+function updateDashboardProfile(user) {
+    const userProfile = document.getElementById('userProfile');
+    if (userProfile) {
+        const userName = userProfile.querySelector('.user-name');
+        const userEmail = userProfile.querySelector('.user-email');
+        const userAvatar = userProfile.querySelector('.user-avatar');
+        
+        if (userName) userName.textContent = user.name;
+        if (userEmail) userEmail.textContent = user.email;
+        
+        if (user.avatar && userAvatar) {
+            userAvatar.innerHTML = `<img src="${user.avatar}" alt="Profile" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+        }
+    }
 }
 
 // Chat functionality
@@ -485,4 +512,170 @@ document.addEventListener('click', (e) => {
         const chapterTitle = e.target.parentElement.querySelector('h3').textContent;
         studyChapter(chapterTitle);
     }
+});
+
+// Dashboard Navigation
+function initializeDashboardNavigation() {
+    // Dashboard sidebar navigation
+    document.querySelectorAll('.sidebar-nav .nav-link').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            // Remove active class from all sidebar links
+            document.querySelectorAll('.sidebar-nav .nav-link').forEach(l => l.classList.remove('active'));
+            // Add active class to clicked link
+            link.classList.add('active');
+            
+            // Hide all dashboard sections
+            document.querySelectorAll('.dashboard-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Show target dashboard section
+            const targetSection = link.getAttribute('data-section');
+            const section = document.getElementById(targetSection);
+            if (section) {
+                section.classList.add('active');
+            }
+        });
+    });
+    
+    // Back to home button
+    const backToHome = document.getElementById('backToHome');
+    if (backToHome) {
+        backToHome.addEventListener('click', () => {
+            navigateToSection('home');
+        });
+    }
+    
+    // Sidebar toggle for mobile
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const sidebar = document.querySelector('.dashboard-sidebar');
+    if (sidebarToggle && sidebar) {
+        sidebarToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+    }
+    
+    // Close sidebar when clicking outside on mobile
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 1024) {
+            const sidebar = document.querySelector('.dashboard-sidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            
+            if (sidebar && sidebarToggle && 
+                !sidebar.contains(e.target) && 
+                !sidebarToggle.contains(e.target) &&
+                sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
+        }
+    });
+    
+    // Logout functionality
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            // Clear stored user data
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            
+            // Reset UI
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.textContent = 'Login';
+                loginBtn.style.background = '';
+                loginBtn.onclick = () => {
+                    const loginModal = document.getElementById('loginModal');
+                    if (loginModal) loginModal.style.display = 'block';
+                };
+            }
+            
+            // Navigate back to home
+            navigateToSection('home');
+            
+            // Reset current user
+            currentUser = null;
+        });
+    }
+    
+    // Dashboard AI Chat
+    const dashboardAiInput = document.getElementById('dashboardAiInput');
+    const sendDashboardAiMessage = document.getElementById('sendDashboardAiMessage');
+    
+    if (dashboardAiInput && sendDashboardAiMessage) {
+        sendDashboardAiMessage.addEventListener('click', sendDashboardAiMessage);
+        dashboardAiInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendDashboardAiMessage();
+            }
+        });
+    }
+}
+
+// Dashboard AI Chat functionality
+async function sendDashboardAiMessage() {
+    const input = document.getElementById('dashboardAiInput');
+    const message = input.value.trim();
+    
+    if (!message) return;
+    
+    // Add user message to chat
+    addDashboardAiMessage(message, 'user');
+    input.value = '';
+    
+    // Add loading message
+    const loadingId = addDashboardAiMessage('Thinking...', 'ai');
+    
+    try {
+        const response = await fetch(`${window.location.origin}/api/ai/chat`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ message })
+        });
+        
+        const data = await response.json();
+        
+        // Replace loading message with actual response
+        const loadingElement = document.getElementById(loadingId);
+        if (loadingElement) {
+            loadingElement.innerHTML = `<strong>AI:</strong> ${data.response}`;
+        }
+        
+    } catch (error) {
+        console.error('Dashboard AI chat error:', error);
+        const loadingElement = document.getElementById(loadingId);
+        if (loadingElement) {
+            loadingElement.innerHTML = '<strong>AI:</strong> Sorry, I encountered an error. Please try again.';
+        }
+    }
+}
+
+function addDashboardAiMessage(message, sender) {
+    const chatMessages = document.getElementById('dashboardAiChatMessages');
+    if (!chatMessages) return;
+    
+    const messageElement = document.createElement('div');
+    const messageId = 'dashboard-msg-' + Date.now();
+    messageElement.id = messageId;
+    messageElement.className = `ai-message ${sender}`;
+    
+    if (sender === 'user') {
+        messageElement.innerHTML = `<strong>You:</strong> ${message}`;
+    } else {
+        messageElement.innerHTML = `<strong>AI:</strong> ${message}`;
+    }
+    
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+    
+    return messageId;
+}
+
+// Initialize dashboard when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    initializeDashboardNavigation();
 });
