@@ -572,15 +572,29 @@ function initializeDashboardNavigation() {
         }
     });
     
-    // Logout functionality
+    // Logout functionality - using event delegation
+    document.addEventListener('click', (e) => {
+        // Check if clicked element or its parent is the logout button
+        if (e.target && (e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn'))) {
+            console.log('Logout button clicked via delegation');
+            e.preventDefault();
+            e.stopPropagation();
+            handleLogout();
+        }
+    });
+    
+    // Direct logout button binding (as backup)
     const logoutBtn = document.getElementById('logoutBtn');
     if (logoutBtn) {
+        console.log('Logout button found, attaching listener');
         logoutBtn.addEventListener('click', handleLogout);
+    } else {
+        console.log('Logout button not found in DOM');
     }
 }
 
-// Global logout function
-function handleLogout() {
+// Global logout function - must be accessible from onclick
+window.handleLogout = function() {
     console.log('Logout clicked');
     
     // Clear stored user data
@@ -685,5 +699,10 @@ function addDashboardAiMessage(message, sender) {
 
 // Initialize dashboard when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
+    initializeDashboardNavigation();
+});
+
+// Also initialize when window loads (as backup)
+window.addEventListener('load', () => {
     initializeDashboardNavigation();
 });
