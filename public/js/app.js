@@ -176,6 +176,13 @@ if (registerForm) {
 
 // Update UI for logged in user
 function updateUIForLoggedInUser(user) {
+    // Update dashboard user profile
+    updateDashboardProfile(user);
+    
+    // Enable chat functionality
+    enableChatFeatures();
+    
+    // Update login button to show user name and make it clickable to dashboard
     if (user.avatar) {
         // Show avatar for OAuth users
         loginBtn.innerHTML = `
@@ -183,24 +190,20 @@ function updateUIForLoggedInUser(user) {
             ${user.name}
         `;
     } else {
-        loginBtn.textContent = `Welcome, ${user.name}`;
+        loginBtn.innerHTML = `
+            <i class="fas fa-user" style="margin-right: 8px;"></i>
+            ${user.name}
+        `;
     }
+    
     loginBtn.style.background = '#27ae60';
     loginBtn.style.display = 'flex';
     loginBtn.style.alignItems = 'center';
+    loginBtn.style.cursor = 'pointer';
     
-    // Update dashboard user profile
-    updateDashboardProfile(user);
-    
-    // Enable chat functionality
-    enableChatFeatures();
-    
-    // Change login button to dashboard access
+    // Make username clickable to access dashboard
     loginBtn.onclick = () => navigateToSection('dashboard');
-    loginBtn.innerHTML = `
-        <i class="fas fa-tachometer-alt" style="margin-right: 8px;"></i>
-        Dashboard
-    `;
+    loginBtn.title = 'Click to access dashboard';
 }
 
 // Update dashboard user profile
@@ -602,4 +605,13 @@ window.handleLogout = function() {
 // Initialize dashboard when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     initializeDashboardNavigation();
+    
+    // Add logout button event listener with delegation
+    document.addEventListener('click', (e) => {
+        if (e.target && (e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn'))) {
+            e.preventDefault();
+            e.stopPropagation();
+            handleLogout();
+        }
+    });
 });
