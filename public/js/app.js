@@ -571,45 +571,10 @@ function initializeDashboardNavigation() {
             }
         }
     });
-    
-    // Logout functionality - using event delegation
-    document.addEventListener('click', (e) => {
-        // Check if clicked element or its parent is the logout button
-        if (e.target && (e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn'))) {
-            console.log('Logout button clicked via delegation');
-            e.preventDefault();
-            e.stopPropagation();
-            handleLogout();
-        }
-    });
-    
-    // Direct logout button binding (as backup)
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-        console.log('Logout button found, attaching listener');
-        logoutBtn.addEventListener('click', handleLogout);
-    } else {
-        console.log('Logout button not found in DOM');
-    }
-    
-    // Dashboard AI Chat
-    const dashboardAiInput = document.getElementById('dashboardAiInput');
-    const sendDashboardAiMessage = document.getElementById('sendDashboardAiMessage');
-    
-    if (dashboardAiInput && sendDashboardAiMessage) {
-        sendDashboardAiMessage.addEventListener('click', () => sendDashboardAiMessage());
-        dashboardAiInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendDashboardAiMessage();
-            }
-        });
-    }
 }
 
-// Global logout function - must be accessible from onclick
+// Global logout function
 window.handleLogout = function() {
-    console.log('Logout clicked');
-    
     // Clear stored user data
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -634,74 +599,7 @@ window.handleLogout = function() {
     alert('Logged out successfully');
 }
 
-// Dashboard AI Chat functionality
-async function sendDashboardAiMessage() {
-    const input = document.getElementById('dashboardAiInput');
-    const message = input.value.trim();
-    
-    if (!message) return;
-    
-    // Add user message to chat
-    addDashboardAiMessage(message, 'user');
-    input.value = '';
-    
-    // Add loading message
-    const loadingId = addDashboardAiMessage('Thinking...', 'ai');
-    
-    try {
-        const response = await fetch(`${window.location.origin}/api/ai/chat`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            },
-            body: JSON.stringify({ message })
-        });
-        
-        const data = await response.json();
-        
-        // Replace loading message with actual response
-        const loadingElement = document.getElementById(loadingId);
-        if (loadingElement) {
-            loadingElement.innerHTML = `<strong>AI:</strong> ${data.response}`;
-        }
-        
-    } catch (error) {
-        console.error('Dashboard AI chat error:', error);
-        const loadingElement = document.getElementById(loadingId);
-        if (loadingElement) {
-            loadingElement.innerHTML = '<strong>AI:</strong> Sorry, I encountered an error. Please try again.';
-        }
-    }
-}
-
-function addDashboardAiMessage(message, sender) {
-    const chatMessages = document.getElementById('dashboardAiChatMessages');
-    if (!chatMessages) return;
-    
-    const messageElement = document.createElement('div');
-    const messageId = 'dashboard-msg-' + Date.now();
-    messageElement.id = messageId;
-    messageElement.className = `ai-message ${sender}`;
-    
-    if (sender === 'user') {
-        messageElement.innerHTML = `<strong>You:</strong> ${message}`;
-    } else {
-        messageElement.innerHTML = `<strong>AI:</strong> ${message}`;
-    }
-    
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-    
-    return messageId;
-}
-
 // Initialize dashboard when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
-    initializeDashboardNavigation();
-});
-
-// Also initialize when window loads (as backup)
-window.addEventListener('load', () => {
     initializeDashboardNavigation();
 });
