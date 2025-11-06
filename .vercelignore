@@ -1,0 +1,9 @@
+node_modules
+.env
+.env.local
+.env.production.local
+.env.development.local
+database/users.db
+.git
+README.md
+scripts/generate-secrets.js

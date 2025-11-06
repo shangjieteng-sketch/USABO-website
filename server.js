@@ -56,7 +56,7 @@ app.use(helmet({
 
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
-    ? ['https://yourdomain.com'] // Replace with your production domain
+    ? ['https://usabo-website.vercel.app'] // Your production domain
     : ['http://localhost:3002', 'http://127.0.0.1:3002'],
   credentials: true,
   optionsSuccessStatus: 200
