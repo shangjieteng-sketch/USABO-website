@@ -4,38 +4,41 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const GitHubStrategy = require('passport-github2').Strategy;
+const User = require('../models/User');
 const router = express.Router();
 
-// In-memory user storage (replace with database in production)
-const users = [];
+// Environment validation
+function validateEnvironment() {
+    if (!process.env.JWT_SECRET) {
+        console.error('WARNING: JWT_SECRET not set in environment variables');
+        process.exit(1);
+    }
+}
 
 // Configure Passport strategies only if environment variables are set
 if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
     passport.use(new GoogleStrategy({
         clientID: process.env.GOOGLE_CLIENT_ID,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-        callbackURL: "/api/auth/google/callback"
+        callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:3002/api/auth/google/callback"
     }, async (accessToken, refreshToken, profile, done) => {
         try {
             // Check if user already exists
-            let user = users.find(user => user.googleId === profile.id);
+            let user = await User.findByGoogleId(profile.id);
             
             if (user) {
                 return done(null, user);
             }
             
             // Create new user
-            user = {
-                id: users.length + 1,
-                googleId: profile.id,
+            user = await User.create({
                 name: profile.displayName,
                 email: profile.emails[0].value,
+                googleId: profile.id,
                 avatar: profile.photos[0].value,
-                provider: 'google',
-                createdAt: new Date()
-            };
+                provider: 'google'
+            });
             
-            users.push(user);
             return done(null, user);
         } catch (error) {
             return done(error, null);
@@ -47,28 +50,25 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
     passport.use(new GitHubStrategy({
         clientID: process.env.GITHUB_CLIENT_ID,
         clientSecret: process.env.GITHUB_CLIENT_SECRET,
-        callbackURL: "/api/auth/github/callback"
+        callbackURL: process.env.GITHUB_CALLBACK_URL || "http://localhost:3002/api/auth/github/callback"
     }, async (accessToken, refreshToken, profile, done) => {
         try {
             // Check if user already exists
-            let user = users.find(user => user.githubId === profile.id);
+            let user = await User.findByGithubId(profile.id);
             
             if (user) {
                 return done(null, user);
             }
             
             // Create new user
-            user = {
-                id: users.length + 1,
-                githubId: profile.id,
+            user = await User.create({
                 name: profile.displayName || profile.username,
                 email: profile.emails ? profile.emails[0].value : `${profile.username}@github.local`,
+                githubId: profile.id,
                 avatar: profile.photos[0].value,
-                provider: 'github',
-                createdAt: new Date()
-            };
+                provider: 'github'
+            });
             
-            users.push(user);
             return done(null, user);
         } catch (error) {
             return done(error, null);
@@ -80,45 +80,57 @@ passport.serializeUser((user, done) => {
     done(null, user.id);
 });
 
-passport.deserializeUser((id, done) => {
-    const user = users.find(user => user.id === id);
-    done(null, user);
+passport.deserializeUser(async (id, done) => {
+    try {
+        const user = await User.findById(id);
+        done(null, user);
+    } catch (error) {
+        done(error, null);
+    }
 });
+
+// Validate environment on load
+validateEnvironment();
 
 // Register endpoint
 router.post('/register', async (req, res) => {
     try {
         const { name, email, password } = req.body;
         
-        // Basic email validation
-        if (!email || !email.includes('@')) {
+        // Validation
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: 'Name, email, and password are required' });
+        }
+        
+        if (!email.includes('@')) {
             return res.status(400).json({ message: 'Please provide a valid email address' });
         }
         
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters' });
+        }
+        
         // Check if user already exists
-        const existingUser = users.find(user => user.email === email);
+        const existingUser = await User.findByEmail(email);
         if (existingUser) {
             return res.status(400).json({ message: 'User already exists' });
         }
         
         // Hash password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        const hashedPassword = await bcrypt.hash(password, 12);
         
         // Create user
-        const user = {
-            id: users.length + 1,
+        const user = await User.create({
             name,
             email,
             password: hashedPassword,
-            createdAt: new Date()
-        };
-        
-        users.push(user);
+            provider: 'local'
+        });
         
         // Generate JWT token
         const token = jwt.sign(
             { userId: user.id, email: user.email },
-            process.env.JWT_SECRET || 'fallback_secret',
+            process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
         
@@ -143,9 +155,14 @@ router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
         
+        // Validation
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+        
         // Find user
-        const user = users.find(user => user.email === email);
-        if (!user) {
+        const user = await User.findByEmail(email);
+        if (!user || !user.password) {
             return res.status(400).json({ message: 'Invalid credentials' });
         }
         
@@ -158,7 +175,7 @@ router.post('/login', async (req, res) => {
         // Generate JWT token
         const token = jwt.sign(
             { userId: user.id, email: user.email },
-            process.env.JWT_SECRET || 'fallback_secret',
+            process.env.JWT_SECRET,
             { expiresIn: '7d' }
         );
         
@@ -179,17 +196,24 @@ router.post('/login', async (req, res) => {
 });
 
 // Get current user
-router.get('/me', authenticateToken, (req, res) => {
-    const user = users.find(user => user.id === req.userId);
-    if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+router.get('/me', authenticateToken, async (req, res) => {
+    try {
+        const user = await User.findById(req.userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        res.json({
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            avatar: user.avatar,
+            provider: user.provider
+        });
+    } catch (error) {
+        console.error('Get user error:', error);
+        res.status(500).json({ message: 'Server error' });
     }
-    
-    res.json({
-        id: user.id,
-        name: user.name,
-        email: user.email
-    });
 });
 
 // Middleware to authenticate JWT token
@@ -201,7 +225,7 @@ function authenticateToken(req, res, next) {
         return res.status(401).json({ message: 'Access token required' });
     }
     
-    jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret', (err, decoded) => {
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
         if (err) {
             return res.status(403).json({ message: 'Invalid or expired token' });
         }
@@ -221,7 +245,7 @@ if (process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {
             // Generate JWT token
             const token = jwt.sign(
                 { userId: req.user.id, email: req.user.email },
-                process.env.JWT_SECRET || 'fallback_secret',
+                process.env.JWT_SECRET,
                 { expiresIn: '7d' }
             );
             
@@ -251,7 +275,7 @@ if (process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET) {
             // Generate JWT token
             const token = jwt.sign(
                 { userId: req.user.id, email: req.user.email },
-                process.env.JWT_SECRET || 'fallback_secret',
+                process.env.JWT_SECRET,
                 { expiresIn: '7d' }
             );
             
@@ -280,14 +304,14 @@ router.get('/config', (req, res) => {
 });
 
 // Debug endpoint to see registered users (remove in production)
-router.get('/users', (req, res) => {
-    const sanitizedUsers = users.map(user => ({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        createdAt: user.createdAt
-    }));
-    res.json(sanitizedUsers);
+router.get('/users', async (req, res) => {
+    try {
+        const users = await User.getAll();
+        res.json(users);
+    } catch (error) {
+        console.error('Get users error:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
 });
 
 module.exports = router;

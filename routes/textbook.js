@@ -325,6 +325,42 @@ router.get('/search', (req, res) => {
     }
 });
 
+// Get Campbell Biology PowerPoint files
+router.get('/campbell-ppt', (req, res) => {
+    try {
+        const fs = require('fs');
+        const path = require('path');
+        
+        const pptDir = path.join(__dirname, '..', 'public', 'ppt');
+        const files = fs.readdirSync(pptDir);
+        
+        const pptFiles = files
+            .filter(file => file.endsWith('.ppt'))
+            .map((file, index) => {
+                const name = file.replace('.ppt', '');
+                const chapterMatch = name.match(/^(\d+)/);
+                const chapterNum = chapterMatch ? parseInt(chapterMatch[1]) : index + 1;
+                
+                return {
+                    id: index + 1,
+                    filename: file,
+                    title: name.replace(/^\d+[-_\s]*/, '').replace(/_/g, ' '),
+                    chapter: chapterNum,
+                    downloadUrl: `/ppt/${file}`
+                };
+            })
+            .sort((a, b) => a.chapter - b.chapter);
+        
+        res.json({
+            files: pptFiles,
+            total: pptFiles.length
+        });
+    } catch (error) {
+        console.error('Error fetching Campbell PPT files:', error);
+        res.status(500).json({ message: 'Failed to fetch Campbell PPT files' });
+    }
+});
+
 // Get diagram information
 router.get('/diagrams', (req, res) => {
     try {

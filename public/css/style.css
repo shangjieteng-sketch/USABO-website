@@ -35,6 +35,222 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Campbell Biology PPT Section Styles */
+.campbell-ppt-section {
+    margin-top: 3rem;
+    padding: 2rem;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+}
+
+.campbell-ppt-section h3 {
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+    font-size: 1.5rem;
+}
+
+.campbell-ppt-section p {
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+}
+
+.campbell-ppt-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 600px;
+    overflow-y: auto;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: var(--border-radius-small);
+    background: white;
+}
+
+.ppt-chapter-item {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.ppt-chapter-item:hover {
+    background: rgba(52, 152, 219, 0.05);
+}
+
+.ppt-chapter-item:last-child {
+    border-bottom: none;
+}
+
+.chapter-number {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--primary-gradient);
+    color: white;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 1.1rem;
+    margin-right: 1rem;
+}
+
+.chapter-content {
+    flex: 1;
+}
+
+.chapter-content h4 {
+    margin: 0 0 0.25rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.chapter-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.chapter-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.preview-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--primary-gradient);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-small);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.preview-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-light);
+}
+
+.download-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: rgba(52, 152, 219, 0.1);
+    color: var(--primary-color);
+    border-radius: 50%;
+    text-decoration: none;
+    transition: var(--transition);
+}
+
+.download-link:hover {
+    background: var(--primary-color);
+    color: white;
+}
+
+/* PPT Preview Modal Styles */
+.ppt-modal-content {
+    max-width: 600px;
+    padding: 2rem;
+}
+
+.ppt-preview-container {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(52, 152, 219, 0.05);
+    border-radius: var(--border-radius);
+    margin-top: 1rem;
+}
+
+.ppt-preview-notice {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ppt-preview-notice i {
+    font-size: 3rem;
+    color: var(--primary-color);
+}
+
+.ppt-preview-notice p {
+    margin: 0;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.preview-text {
+    color: var(--text-secondary) !important;
+    font-weight: 400 !important;
+}
+
+.preview-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1.5rem;
+}
+
+.download-btn-large {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary-gradient);
+    color: white;
+    text-decoration: none;
+    border-radius: var(--border-radius-small);
+    font-weight: 500;
+    transition: var(--transition);
+}
+
+.download-btn-large:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-medium);
+}
+
+.close-btn {
+    padding: 0.75rem 1.5rem;
+    background: var(--text-secondary);
+    color: white;
+    border: none;
+    border-radius: var(--border-radius-small);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.close-btn:hover {
+    background: var(--text-primary);
+}
+
+.campbell-ppt-list .loading {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.campbell-ppt-list .error {
+    text-align: center;
+    padding: 2rem;
+    color: var(--secondary-color);
+    background: rgba(231, 76, 60, 0.1);
+    border-radius: var(--border-radius-small);
+    border: 1px solid rgba(231, 76, 60, 0.2);
+}
+
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     line-height: 1.7;

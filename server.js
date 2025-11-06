@@ -7,7 +7,29 @@ const morgan = require('morgan');
 const rateLimit = require('express-rate-limit');
 const passport = require('passport');
 const session = require('express-session');
+const { initDatabase } = require('./database/init');
 require('dotenv').config();
+
+// Environment validation
+function validateEnvironment() {
+    const required = ['JWT_SECRET', 'SESSION_SECRET'];
+    const missing = required.filter(key => !process.env[key]);
+    
+    if (missing.length > 0) {
+        console.error('Missing required environment variables:');
+        missing.forEach(key => console.error(`  - ${key}`));
+        console.error('Please copy .env.example to .env and fill in the required values');
+        process.exit(1);
+    }
+    
+    // Validate JWT_SECRET strength
+    if (process.env.JWT_SECRET.length < 32) {
+        console.error('JWT_SECRET must be at least 32 characters long for security');
+        process.exit(1);
+    }
+    
+    console.log('Environment validation passed ✓');
+}
 
 const app = express();
 const server = http.createServer(app);
@@ -19,16 +41,49 @@ const io = socketIo(server, {
 });
 
 // Security middleware
-app.use(helmet());
-app.use(cors());
-app.use(morgan('combined'));
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com", "https://fonts.googleapis.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://cdnjs.cloudflare.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com"],
+      imgSrc: ["'self'", "data:", "https:", "blob:"],
+      connectSrc: ["'self'", "ws:", "wss:"]
+    }
+  }
+}));
+
+app.use(cors({
+  origin: process.env.NODE_ENV === 'production' 
+    ? ['https://yourdomain.com'] // Replace with your production domain
+    : ['http://localhost:3002', 'http://127.0.0.1:3002'],
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
+
+app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
 
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // More restrictive in production
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false
 });
+
+// More restrictive rate limiting for auth endpoints
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // Only 5 auth attempts per window
+  message: 'Too many authentication attempts, please try again later.',
+  skipSuccessfulRequests: true
+});
+
 app.use(limiter);
+app.use('/api/auth/login', authLimiter);
+app.use('/api/auth/register', authLimiter);
 
 // Body parsing middleware
 app.use(express.json());
@@ -36,10 +91,14 @@ app.use(express.urlencoded({ extended: true }));
 
 // Session middleware
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'fallback_session_secret',
+  secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // Set to true if using HTTPS
+  cookie: { 
+    secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  }
 }));
 
 // Passport middleware
@@ -80,7 +139,26 @@ app.get('/', (req, res) => {
   res.sendFile(__dirname + '/public/index.html');
 });
 
-const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-  console.log(`USABO Website running on port ${PORT}`);
-});
+const PORT = process.env.PORT || 3002;
+
+// Initialize database and start server
+async function startServer() {
+  try {
+    // Validate environment first
+    validateEnvironment();
+    
+    // Initialize database
+    await initDatabase();
+    console.log('Database initialized successfully');
+    
+    server.listen(PORT, () => {
+      console.log(`USABO Website running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+startServer();

@@ -602,9 +602,83 @@ window.handleLogout = function() {
     alert('Logged out successfully');
 }
 
+// Load Campbell Biology PowerPoint files
+async function loadCampbellPPT() {
+    try {
+        const response = await fetch(`${window.location.origin}/api/textbook/campbell-ppt`);
+        const data = await response.json();
+        
+        const list = document.getElementById('campbellPptList');
+        if (list && data.files) {
+            list.innerHTML = data.files.map((file, index) => `
+                <div class="ppt-chapter-item" onclick="previewPPT('${encodeURIComponent(file.filename)}', '${file.title.replace(/'/g, "\\'")}', ${file.chapter})">
+                    <div class="chapter-number">${file.chapter}</div>
+                    <div class="chapter-content">
+                        <h4>${file.title}</h4>
+                        <p>Campbell Biology - Chapter ${file.chapter}</p>
+                    </div>
+                    <div class="chapter-actions">
+                        <button class="preview-btn">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                        <a href="${file.downloadUrl}" download class="download-link" onclick="event.stopPropagation()">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+        }
+    } catch (error) {
+        console.error('Error loading Campbell PPT files:', error);
+        const list = document.getElementById('campbellPptList');
+        if (list) {
+            list.innerHTML = '<div class="error">Failed to load PowerPoint files</div>';
+        }
+    }
+}
+
+// Preview PowerPoint function
+function previewPPT(encodedFilename, title, chapter) {
+    const filename = decodeURIComponent(encodedFilename);
+    console.log('Opening preview for:', filename, title, chapter);
+    
+    const modalHtml = `
+        <div id="pptModal" class="modal" style="display: block;">
+            <div class="modal-content ppt-modal-content">
+                <span class="close" onclick="closePPTModal()">&times;</span>
+                <h2>📊 Chapter ${chapter}: ${title}</h2>
+                <div class="ppt-preview-container">
+                    <div class="ppt-preview-notice">
+                        <i class="fas fa-file-powerpoint" style="color: #d35400;"></i>
+                        <p>PowerPoint Presentation</p>
+                        <p class="preview-text">Campbell Biology Chapter ${chapter} - ${title}</p>
+                        <p class="preview-text">This PowerPoint presentation contains detailed slides covering the chapter content.</p>
+                        <div class="preview-actions">
+                            <a href="/ppt/${encodeURIComponent(filename)}" download class="download-btn-large">
+                                <i class="fas fa-download"></i> Download PPT File
+                            </a>
+                            <button onclick="closePPTModal()" class="close-btn">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+}
+
+function closePPTModal() {
+    const modal = document.getElementById('pptModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
 // Initialize dashboard when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
     initializeDashboardNavigation();
+    loadCampbellPPT();
     
     // Add logout button event listener with delegation
     document.addEventListener('click', (e) => {
