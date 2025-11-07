@@ -10,6 +10,9 @@ const session = require('express-session');
 const { initDatabase } = require('./database/init');
 require('dotenv').config();
 
+// Check if running in Vercel serverless environment
+const isVercel = process.env.VERCEL === '1';
+
 // Environment validation
 function validateEnvironment() {
     const required = ['JWT_SECRET', 'SESSION_SECRET'];
@@ -33,12 +36,17 @@ function validateEnvironment() {
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server, {
-  cors: {
-    origin: "*",
-    methods: ["GET", "POST"]
-  }
-});
+
+// Initialize Socket.IO only if not in Vercel serverless environment
+let io;
+if (!isVercel) {
+  io = socketIo(server, {
+    cors: {
+      origin: "*",
+      methods: ["GET", "POST"]
+    }
+  });
+}
 
 // Security middleware
 app.use(helmet({
@@ -116,23 +124,25 @@ app.use('/api/problems', require('./routes/problems'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/community', require('./routes/community'));
 
-// Socket.io for real-time chat
-io.on('connection', (socket) => {
-  console.log('User connected:', socket.id);
-  
-  socket.on('join-room', (room) => {
-    socket.join(room);
-    console.log(`User ${socket.id} joined room ${room}`);
+// Socket.io for real-time chat (only if not in Vercel)
+if (io) {
+  io.on('connection', (socket) => {
+    console.log('User connected:', socket.id);
+    
+    socket.on('join-room', (room) => {
+      socket.join(room);
+      console.log(`User ${socket.id} joined room ${room}`);
+    });
+    
+    socket.on('chat-message', (data) => {
+      io.to(data.room).emit('chat-message', data);
+    });
+    
+    socket.on('disconnect', () => {
+      console.log('User disconnected:', socket.id);
+    });
   });
-  
-  socket.on('chat-message', (data) => {
-    io.to(data.room).emit('chat-message', data);
-  });
-  
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
-});
+}
 
 // Main route
 app.get('/', (req, res) => {
@@ -151,14 +161,31 @@ async function startServer() {
     await initDatabase();
     console.log('Database initialized successfully');
     
-    server.listen(PORT, () => {
-      console.log(`USABO Website running on port ${PORT}`);
-      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
-    });
+    // Only start server if not in Vercel (Vercel handles this)
+    if (!isVercel) {
+      server.listen(PORT, () => {
+        console.log(`USABO Website running on port ${PORT}`);
+        console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+      });
+    } else {
+      console.log('Running in Vercel serverless environment');
+    }
   } catch (error) {
     console.error('Failed to start server:', error);
-    process.exit(1);
+    if (!isVercel) {
+      process.exit(1);
+    }
   }
 }
 
-startServer();
+// For Vercel, export the app instead of starting the server
+if (isVercel) {
+  startServer().then(() => {
+    module.exports = app;
+  }).catch((error) => {
+    console.error('Initialization failed:', error);
+    module.exports = app;
+  });
+} else {
+  startServer();
+}

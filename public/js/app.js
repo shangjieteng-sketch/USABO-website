@@ -1,7 +1,11 @@
-// Initialize Socket.IO
+// Initialize Socket.IO (only if available)
 let socket;
 try {
-    socket = io();
+    if (typeof io !== 'undefined') {
+        socket = io();
+    } else {
+        console.log('Socket.IO not available in serverless environment');
+    }
 } catch (error) {
     console.error('Socket.IO failed to initialize:', error);
 }
