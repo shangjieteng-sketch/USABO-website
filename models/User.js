@@ -1,5 +1,3 @@
-const { getDatabase } = require('../database/init');
-
 // Use in-memory database for serverless environments
 const isVercel = process.env.VERCEL === '1';
 const dbPath = isVercel ? ':memory:' : require('path').join(__dirname, '..', 'database', 'users.db');
