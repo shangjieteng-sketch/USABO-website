@@ -178,14 +178,16 @@ async function startServer() {
   }
 }
 
-// For Vercel, export the app instead of starting the server
+// Initialize the server
 if (isVercel) {
-  startServer().then(() => {
-    module.exports = app;
-  }).catch((error) => {
+  // For Vercel: initialize async but don't start server
+  startServer().catch((error) => {
     console.error('Initialization failed:', error);
-    module.exports = app;
   });
 } else {
+  // For local development: start the server normally
   startServer();
 }
+
+// Always export the app for both Vercel and local use
+module.exports = app;

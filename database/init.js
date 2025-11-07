@@ -1,7 +1,9 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
 
-const dbPath = path.join(__dirname, 'users.db');
+// Use in-memory database for serverless environments
+const isVercel = process.env.VERCEL === '1';
+const dbPath = isVercel ? ':memory:' : path.join(__dirname, 'users.db');
 
 function initDatabase() {
     return new Promise((resolve, reject) => {
@@ -11,7 +13,7 @@ function initDatabase() {
                 reject(err);
                 return;
             }
-            console.log('Connected to SQLite database');
+            console.log(`Connected to ${isVercel ? 'in-memory' : 'SQLite'} database`);
         });
 
         db.serialize(() => {

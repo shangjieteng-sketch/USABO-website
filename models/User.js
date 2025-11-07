@@ -1,5 +1,14 @@
 const { getDatabase } = require('../database/init');
 
+// Use in-memory database for serverless environments
+const isVercel = process.env.VERCEL === '1';
+const dbPath = isVercel ? ':memory:' : require('path').join(__dirname, '..', 'database', 'users.db');
+
+function getDatabase() {
+    const sqlite3 = require('sqlite3').verbose();
+    return new sqlite3.Database(dbPath);
+}
+
 class User {
     static async findByEmail(email) {
         return new Promise((resolve, reject) => {
