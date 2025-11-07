@@ -560,6 +560,27 @@ function initializeDashboardNavigation() {
         });
     }
     
+    // Sidebar minimize functionality
+    const sidebarMinimize = document.getElementById('sidebarMinimize');
+    const dashboardLayout = document.querySelector('.dashboard-layout');
+    if (sidebarMinimize && sidebar && dashboardLayout) {
+        sidebarMinimize.addEventListener('click', () => {
+            sidebar.classList.toggle('minimized');
+            dashboardLayout.classList.toggle('sidebar-minimized');
+            
+            // Store the minimized state in localStorage
+            const isMinimized = sidebar.classList.contains('minimized');
+            localStorage.setItem('sidebarMinimized', isMinimized);
+        });
+        
+        // Restore minimized state from localStorage
+        const savedState = localStorage.getItem('sidebarMinimized');
+        if (savedState === 'true') {
+            sidebar.classList.add('minimized');
+            dashboardLayout.classList.add('sidebar-minimized');
+        }
+    }
+    
     // Close sidebar when clicking outside on mobile
     document.addEventListener('click', (e) => {
         if (window.innerWidth <= 1024) {
