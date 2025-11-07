@@ -7,3 +7,4 @@ database/users.db
 .git
 README.md
 scripts/generate-secrets.js
+public/ppt/

@@ -331,25 +331,45 @@ router.get('/campbell-ppt', (req, res) => {
         const fs = require('fs');
         const path = require('path');
         
+        // Try to read from local files first (development)
         const pptDir = path.join(__dirname, '..', 'public', 'ppt');
-        const files = fs.readdirSync(pptDir);
+        let pptFiles = [];
         
-        const pptFiles = files
-            .filter(file => file.endsWith('.ppt'))
-            .map((file, index) => {
-                const name = file.replace('.ppt', '');
-                const chapterMatch = name.match(/^(\d+)/);
-                const chapterNum = chapterMatch ? parseInt(chapterMatch[1]) : index + 1;
-                
-                return {
-                    id: index + 1,
-                    filename: file,
-                    title: name.replace(/^\d+[-_\s]*/, '').replace(/_/g, ' '),
-                    chapter: chapterNum,
-                    downloadUrl: `/ppt/${file}`
-                };
-            })
-            .sort((a, b) => a.chapter - b.chapter);
+        if (fs.existsSync(pptDir)) {
+            // Development mode - read from local files
+            const files = fs.readdirSync(pptDir);
+            pptFiles = files
+                .filter(file => file.endsWith('.ppt'))
+                .map((file, index) => {
+                    const name = file.replace('.ppt', '');
+                    const chapterMatch = name.match(/^(\d+)/);
+                    const chapterNum = chapterMatch ? parseInt(chapterMatch[1]) : index + 1;
+                    
+                    return {
+                        id: index + 1,
+                        filename: file,
+                        title: name.replace(/^\d+[-_\s]*/, '').replace(/_/g, ' '),
+                        chapter: chapterNum,
+                        downloadUrl: `/ppt/${file}`
+                    };
+                })
+                .sort((a, b) => a.chapter - b.chapter);
+        } else {
+            // Production mode - use external links
+            const linksPath = path.join(__dirname, '..', 'public', 'data', 'campbell-ppt-links.json');
+            if (fs.existsSync(linksPath)) {
+                const links = JSON.parse(fs.readFileSync(linksPath, 'utf8'));
+                pptFiles = links;
+            } else {
+                // Fallback - generate basic list
+                pptFiles = Array.from({ length: 56 }, (_, i) => ({
+                    id: i + 1,
+                    chapter: i + 1,
+                    title: `Chapter ${i + 1}`,
+                    downloadUrl: `https://github.com/shangjieteng-sketch/USABO-website/releases/download/v1.0/chapter_${String(i + 1).padStart(2, '0')}.ppt`
+                }));
+            }
+        }
         
         res.json({
             files: pptFiles,

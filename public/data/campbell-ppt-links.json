@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "chapter": 1,
+    "title": "Introduction Themes in the Study of Life",
+    "downloadUrl": "https://github.com/shangjieteng-sketch/USABO-website/releases/download/v1.0/01_Introduction_Themes_in_the_Study_of_Life.ppt"
+  },
+  {
+    "id": 2,
+    "chapter": 2,
+    "title": "The Chemical Context of Life",
+    "downloadUrl": "https://github.com/shangjieteng-sketch/USABO-website/releases/download/v1.0/02_The_Chemical_Context_of_Life.ppt"
+  },
+  {
+    "id": 3,
+    "chapter": 3,
+    "title": "Water and the Fitness of the Environment",
+    "downloadUrl": "https://github.com/shangjieteng-sketch/USABO-website/releases/download/v1.0/03_Water_and_the_Fitness_of_the_Environment.ppt"
+  }
+]
