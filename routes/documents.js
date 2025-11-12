@@ -11,22 +11,22 @@ router.get('/api/ppt-files', async (req, res) => {
   let files = [];
   let htmlFiles = [];
   
-  // Load PDF converted files from local directory
+  // Load HTML converted files from local directory
   try {
-    const pdfDir = path.join(__dirname, '..', 'public', 'ppt-pdf');
-    const pdfFileList = fs.readdirSync(pdfDir);
-    htmlFiles = pdfFileList
-      .filter((f) => f.endsWith('.pdf'))
+    const htmlDir = path.join(__dirname, '..', 'public', 'ppt-html');
+    const htmlFileList = fs.readdirSync(htmlDir);
+    htmlFiles = htmlFileList
+      .filter((f) => f.endsWith('.html'))
       .map((name) => ({
-        name: name.replace('.pdf', '.ppt'),
-        size: fs.statSync(path.join(pdfDir, name)).size,
-        ext: 'pdf',
-        pdfUrl: `/ppt-pdf/${encodeURIComponent(name)}`,
-        viewerType: 'pdf'
+        name: name.replace('.html', '.ppt'),
+        size: fs.statSync(path.join(htmlDir, name)).size,
+        ext: 'html',
+        htmlUrl: `/ppt-html/${encodeURIComponent(name)}`,
+        viewerType: 'html'
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  } catch (pdfError) {
-    console.error('Error reading PDF directory:', pdfError);
+  } catch (htmlError) {
+    console.error('Error reading HTML directory:', htmlError);
   }
   
   try {
@@ -66,7 +66,7 @@ router.get('/api/ppt-files', async (req, res) => {
       console.error('Error reading local directory:', localError);
     }
   }
-  // Combine PDF files with other files, prioritizing PDF versions
+  // Combine HTML files with other files, prioritizing HTML versions
   const allFiles = [...htmlFiles, ...files.filter(f => !htmlFiles.find(h => h.name === f.name))];
   res.json({ files: allFiles });
 });
@@ -206,8 +206,8 @@ router.get('/', (req, res) => {
             document.getElementById('current-file-name').textContent = file.name;
             
             const downloadLink = document.getElementById('download-link');
-            if (file.ext === 'pdf') {
-                downloadLink.href = file.pdfUrl;
+            if (file.ext === 'html') {
+                downloadLink.href = file.htmlUrl;
             } else {
                 downloadLink.href = file.s3Url || \`/ppt/\${encodeURIComponent(file.name)}\`;
             }
@@ -221,23 +221,24 @@ router.get('/', (req, res) => {
         function displayFile(file) {
             const viewerContent = document.getElementById('viewer-content');
             
-            if (file.ext === 'pdf' && file.pdfUrl) {
-                // Display PDF presentation using PDF.js
+            if (file.ext === 'html' && file.htmlUrl) {
+                // Display HTML presentation with custom styling
                 viewerContent.innerHTML = \`
                     <div class="mb-3">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-primary btn-sm active" disabled>
-                                PDF Presentation
+                                HTML Presentation
                             </button>
-                            <a href="\${file.pdfUrl}" class="btn btn-outline-primary btn-sm" target="_blank">
+                            <a href="\${file.htmlUrl}" class="btn btn-outline-primary btn-sm" target="_blank">
                                 Open in New Tab
                             </a>
                         </div>
                     </div>
-                    <iframe src="https://mozilla.github.io/pdf.js/web/viewer.html?file=\${encodeURIComponent(window.location.origin + file.pdfUrl)}" 
+                    <iframe id="presentation-frame" src="\${file.htmlUrl}" 
                             class="viewer-iframe" 
                             title="\${file.name}"
-                            style="background: white;">
+                            style="background: white;"
+                            onload="fixPresentationDisplay()">
                     </iframe>\`;
                 return;
             }
@@ -321,6 +322,81 @@ router.get('/', (req, res) => {
                             </div>
                         </div>\`;
                     break;
+            }
+        }
+
+        // Fix presentation display by injecting CSS
+        function fixPresentationDisplay() {
+            try {
+                const iframe = document.getElementById('presentation-frame');
+                if (!iframe) return;
+                
+                const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                if (!iframeDoc) return;
+                
+                // Add CSS to fix the presentation layout
+                const style = iframeDoc.createElement('style');
+                style.textContent = \`
+                    body {
+                        background: white !important;
+                        margin: 0 !important;
+                        padding: 20px !important;
+                        font-family: Arial, sans-serif !important;
+                        transform: scale(0.8) !important;
+                        transform-origin: top left !important;
+                        width: 125% !important;
+                    }
+                    
+                    /* Fix the page layout */
+                    .page-dp1, .page-dp2, .page-dp3, .page-dp4 {
+                        background: white !important;
+                        margin: 20px auto !important;
+                        border: 1px solid #ddd !important;
+                        box-shadow: 0 2px 10px rgba(0,0,0,0.1) !important;
+                        position: relative !important;
+                        display: block !important;
+                        width: auto !important;
+                        min-height: 500px !important;
+                        page-break-after: always !important;
+                    }
+                    
+                    /* Fix positioned elements */
+                    div[style*="position:absolute"] {
+                        position: relative !important;
+                        margin: 10px !important;
+                        display: inline-block !important;
+                        vertical-align: top !important;
+                    }
+                    
+                    /* Fix text styling */
+                    p, span, div {
+                        line-height: 1.4 !important;
+                        margin: 5px 0 !important;
+                    }
+                    
+                    /* Make images responsive */
+                    img {
+                        max-width: 100% !important;
+                        height: auto !important;
+                        margin: 10px !important;
+                    }
+                    
+                    /* Fix font sizes */
+                    .text-T1, .text-T2, .text-T3, .text-T4, .text-T5 {
+                        font-size: 16px !important;
+                    }
+                    
+                    /* Fix graphic elements */
+                    [class*="graphic-"] {
+                        margin: 10px !important;
+                        display: inline-block !important;
+                        vertical-align: top !important;
+                    }
+                \`;
+                
+                iframeDoc.head.appendChild(style);
+            } catch (e) {
+                console.log('Could not inject CSS into iframe:', e);
             }
         }
 
