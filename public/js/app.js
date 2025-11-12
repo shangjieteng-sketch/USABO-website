@@ -196,27 +196,30 @@ function updateUIForLoggedInUser(user) {
     enableChatFeatures();
     
     // Update login button to show user name and make it clickable to dashboard
-    if (user.avatar) {
-        // Show avatar for OAuth users
-        loginBtn.innerHTML = `
-            <img src="${user.avatar}" alt="Profile" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px;">
-            ${user.name}
-        `;
-    } else {
-        loginBtn.innerHTML = `
-            <i class="fas fa-user" style="margin-right: 8px;"></i>
-            ${user.name}
-        `;
+    const loginBtn = document.getElementById('loginBtn');
+    if (loginBtn) {
+        if (user.avatar) {
+            // Show avatar for OAuth users
+            loginBtn.innerHTML = `
+                <img src="${user.avatar}" alt="Profile" style="width: 24px; height: 24px; border-radius: 50%; margin-right: 8px;">
+                ${user.name}
+            `;
+        } else {
+            loginBtn.innerHTML = `
+                <i class="fas fa-user" style="margin-right: 8px;"></i>
+                ${user.name}
+            `;
+        }
+        
+        loginBtn.style.background = '#27ae60';
+        loginBtn.style.display = 'flex';
+        loginBtn.style.alignItems = 'center';
+        loginBtn.style.cursor = 'pointer';
+        
+        // Make username clickable to access dashboard
+        loginBtn.onclick = () => navigateToSection('dashboard');
+        loginBtn.title = 'Click to access dashboard';
     }
-    
-    loginBtn.style.background = '#27ae60';
-    loginBtn.style.display = 'flex';
-    loginBtn.style.alignItems = 'center';
-    loginBtn.style.cursor = 'pointer';
-    
-    // Make username clickable to access dashboard
-    loginBtn.onclick = () => navigateToSection('dashboard');
-    loginBtn.title = 'Click to access dashboard';
 }
 
 // Update dashboard user profile
@@ -505,7 +508,7 @@ function showChapterModal(chapter) {
     const modalHtml = `
         <div id="chapterModal" class="modal" style="display: block;">
             <div class="modal-content" style="max-width: 800px; max-height: 80vh; overflow-y: auto;">
-                <span class="close" onclick="closeChapterModal()">&times;</span>
+                <span class="close" data-close-modal="chapter">&times;</span>
                 <h2>${chapter.icon} ${chapter.title}</h2>
                 <p>${chapter.description}</p>
                 <div class="chapter-sections">
@@ -662,7 +665,7 @@ async function loadCampbellPPT() {
         const list = document.getElementById('campbellPptList');
         if (list && data.files) {
             list.innerHTML = data.files.map((file, index) => `
-                <div class="ppt-chapter-item" onclick="previewPPT('${encodeURIComponent(file.downloadUrl || file.filename || '')}', '${file.title.replace(/'/g, "\\'")}', ${file.chapter})">
+                <div class="ppt-chapter-item" data-url="${encodeURIComponent(file.downloadUrl || file.filename || '')}" data-title="${file.title.replace(/"/g, '&quot;')}" data-chapter="${file.chapter}">
                     <div class="chapter-number">${file.chapter}</div>
                     <div class="chapter-content">
                         <h4>${file.title}</h4>
@@ -672,12 +675,30 @@ async function loadCampbellPPT() {
                         <button class="preview-btn">
                             <i class="fas fa-eye"></i> Preview
                         </button>
-                        <a href="${file.downloadUrl}" download class="download-link" onclick="event.stopPropagation()">
+                        <a href="${file.downloadUrl}" download class="download-link">
                             <i class="fas fa-download"></i>
                         </a>
                     </div>
                 </div>
             `).join('');
+            
+            // Add event delegation for Campbell PPT items
+            list.addEventListener('click', (e) => {
+                const pptItem = e.target.closest('.ppt-chapter-item');
+                const downloadLink = e.target.closest('.download-link');
+                
+                if (downloadLink) {
+                    // Let the download link work normally, don't prevent default
+                    return;
+                }
+                
+                if (pptItem) {
+                    const url = decodeURIComponent(pptItem.dataset.url);
+                    const title = pptItem.dataset.title;
+                    const chapter = parseInt(pptItem.dataset.chapter);
+                    previewPPT(encodeURIComponent(url), title, chapter);
+                }
+            });
         }
     } catch (error) {
         console.error('Error loading Campbell PPT files:', error);
@@ -701,7 +722,7 @@ function previewPPT(encodedUrl, title, chapter) {
     const modalHtml = `
         <div id="pptModal" class="modal" style="display: block;">
             <div class="modal-content ppt-modal-content">
-                <span class="close" onclick="closePPTModal()">&times;</span>
+                <span class="close" data-close-modal="ppt">&times;</span>
                 <h2>📊 Chapter ${chapter}: ${title}</h2>
                 <div class="ppt-preview-container">
                     <div class="ppt-preview-notice">
@@ -713,7 +734,7 @@ function previewPPT(encodedUrl, title, chapter) {
                             <a href="${downloadUrl}" download="${filename}" class="download-btn-large">
                                 <i class="fas fa-download"></i> Download PPT File
                             </a>
-                            <button onclick="closePPTModal()" class="close-btn">Close</button>
+                            <button class="close-btn" data-close-modal="ppt">Close</button>
                         </div>
                     </div>
                 </div>
@@ -757,6 +778,27 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             e.stopPropagation();
             handleLogout();
+        }
+    });
+    
+    // Global event delegation for close buttons
+    document.addEventListener('click', (e) => {
+        // Handle modal close buttons
+        if (e.target.hasAttribute('data-close-modal')) {
+            const modalType = e.target.getAttribute('data-close-modal');
+            if (modalType === 'ppt') {
+                closePPTModal();
+            } else if (modalType === 'chapter') {
+                closeChapterModal();
+            }
+        }
+        
+        // Handle notification close button
+        if (e.target.classList.contains('notification-close')) {
+            const notification = e.target.closest('.login-notification');
+            if (notification) {
+                notification.parentElement.remove();
+            }
         }
     });
 });
@@ -805,10 +847,10 @@ function showLoginSuccess(user) {
     // Create a simple success notification
     const notification = document.createElement('div');
     notification.innerHTML = `
-        <div style="position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000;">
+        <div class="login-notification" style="position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000;">
             <strong>Login Successful!</strong><br>
             Welcome, ${user.name}!
-            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; float: right; font-size: 18px; cursor: pointer;">&times;</button>
+            <button class="notification-close" style="background: none; border: none; color: white; float: right; font-size: 18px; cursor: pointer;">&times;</button>
         </div>
     `;
     document.body.appendChild(notification);
