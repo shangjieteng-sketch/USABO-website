@@ -708,12 +708,25 @@ async function loadCampbellPPT() {
                     previewPPT(encodeURIComponent(url), title, chapter);
                 }
             });
+        } else {
+            console.warn('No files received from Campbell PPT API');
+            const list = document.getElementById('campbellPptList');
+            if (list) {
+                list.innerHTML = '<div class="error">No Campbell Biology files found</div>';
+            }
         }
     } catch (error) {
         console.error('Error loading Campbell PPT files:', error);
         const list = document.getElementById('campbellPptList');
         if (list) {
-            list.innerHTML = '<div class="error">Failed to load PowerPoint files</div>';
+            list.innerHTML = `
+                <div class="error">
+                    <p>Failed to load PowerPoint files</p>
+                    <button class="retry-btn campbell-retry" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Retry Loading
+                    </button>
+                </div>
+            `;
         }
     }
 }
@@ -766,6 +779,21 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeDashboardNavigation();
     loadCampbellPPT();
     
+    // Also add click listener for textbook navigation to ensure Campbell loads
+    const textbookNavLink = document.querySelector('a[href="#section_3"]');
+    if (textbookNavLink) {
+        textbookNavLink.addEventListener('click', () => {
+            // Delay to allow smooth scroll, then ensure Campbell is loaded
+            setTimeout(() => {
+                const campbellList = document.getElementById('campbellPptList');
+                if (campbellList && campbellList.innerHTML.includes('Loading chapters...')) {
+                    console.log('Re-loading Campbell PPT after navigation...');
+                    loadCampbellPPT();
+                }
+            }, 500);
+        });
+    }
+    
     // Handle OAuth callback if present
     handleAuthCallback();
     
@@ -808,6 +836,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (notification) {
                 notification.parentElement.remove();
             }
+        }
+        
+        // Handle Campbell PPT retry button
+        if (e.target.classList.contains('campbell-retry')) {
+            console.log('Retrying Campbell PPT load...');
+            loadCampbellPPT();
         }
     });
 });
