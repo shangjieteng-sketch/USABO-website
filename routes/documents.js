@@ -11,22 +11,22 @@ router.get('/api/ppt-files', async (req, res) => {
   let files = [];
   let htmlFiles = [];
   
-  // Load HTML converted files from local directory
+  // Load PDF converted files from local directory
   try {
-    const htmlDir = path.join(__dirname, '..', 'public', 'ppt-html');
-    const htmlFileList = fs.readdirSync(htmlDir);
-    htmlFiles = htmlFileList
-      .filter((f) => f.endsWith('.html'))
+    const pdfDir = path.join(__dirname, '..', 'public', 'ppt-pdf');
+    const pdfFileList = fs.readdirSync(pdfDir);
+    htmlFiles = pdfFileList
+      .filter((f) => f.endsWith('.pdf'))
       .map((name) => ({
-        name: name.replace('.html', '.ppt'),
-        size: fs.statSync(path.join(htmlDir, name)).size,
-        ext: 'html',
-        htmlUrl: `/ppt-html/${encodeURIComponent(name)}`,
-        viewerType: 'html'
+        name: name.replace('.pdf', '.ppt'),
+        size: fs.statSync(path.join(pdfDir, name)).size,
+        ext: 'pdf',
+        pdfUrl: `/ppt-pdf/${encodeURIComponent(name)}`,
+        viewerType: 'pdf'
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
-  } catch (htmlError) {
-    console.error('Error reading HTML directory:', htmlError);
+  } catch (pdfError) {
+    console.error('Error reading PDF directory:', pdfError);
   }
   
   try {
@@ -66,7 +66,7 @@ router.get('/api/ppt-files', async (req, res) => {
       console.error('Error reading local directory:', localError);
     }
   }
-  // Combine HTML files with other files, prioritizing HTML versions
+  // Combine PDF files with other files, prioritizing PDF versions
   const allFiles = [...htmlFiles, ...files.filter(f => !htmlFiles.find(h => h.name === f.name))];
   res.json({ files: allFiles });
 });
@@ -206,8 +206,8 @@ router.get('/', (req, res) => {
             document.getElementById('current-file-name').textContent = file.name;
             
             const downloadLink = document.getElementById('download-link');
-            if (file.ext === 'html') {
-                downloadLink.href = file.htmlUrl;
+            if (file.ext === 'pdf') {
+                downloadLink.href = file.pdfUrl;
             } else {
                 downloadLink.href = file.s3Url || \`/ppt/\${encodeURIComponent(file.name)}\`;
             }
@@ -221,20 +221,20 @@ router.get('/', (req, res) => {
         function displayFile(file) {
             const viewerContent = document.getElementById('viewer-content');
             
-            if (file.ext === 'html') {
-                // Display HTML presentation directly
+            if (file.ext === 'pdf' && file.pdfUrl) {
+                // Display PDF presentation using PDF.js
                 viewerContent.innerHTML = \`
                     <div class="mb-3">
                         <div class="btn-group" role="group">
                             <button type="button" class="btn btn-primary btn-sm active" disabled>
-                                HTML Presentation
+                                PDF Presentation
                             </button>
-                            <a href="\${file.htmlUrl}" class="btn btn-outline-primary btn-sm" target="_blank">
+                            <a href="\${file.pdfUrl}" class="btn btn-outline-primary btn-sm" target="_blank">
                                 Open in New Tab
                             </a>
                         </div>
                     </div>
-                    <iframe src="\${file.htmlUrl}" 
+                    <iframe src="https://mozilla.github.io/pdf.js/web/viewer.html?file=\${encodeURIComponent(window.location.origin + file.pdfUrl)}" 
                             class="viewer-iframe" 
                             title="\${file.name}"
                             style="background: white;">

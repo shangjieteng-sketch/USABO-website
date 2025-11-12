@@ -1,50 +1,33 @@
-#!/bin/bash
+#\!/bin/bash
 
-# Script to convert PowerPoint files to PDF using LibreOffice
-# Make sure LibreOffice is installed: brew install --cask libreoffice
+# PPT to PDF Converter Script
+# Requires LibreOffice to be installed
 
-PPT_DIR="/Users/a2021625/Desktop/USABO-website/public/ppt"
-PDF_DIR="/Users/a2021625/Desktop/USABO-website/public/pdf"
+INPUT_DIR="public/ppt"
+OUTPUT_DIR="public/ppt-pdf"
 
-# Create PDF directory if it doesn't exist
-mkdir -p "$PDF_DIR"
+# Create output directory
+mkdir -p "$OUTPUT_DIR"
 
-echo "Converting PowerPoint files to PDF..."
-echo "PPT Directory: $PPT_DIR"
-echo "PDF Directory: $PDF_DIR"
+echo "Converting PPT files to PDF..."
 
-# Check if LibreOffice is available
-if command -v soffice &> /dev/null; then
-    SOFFICE_CMD="soffice"
-elif [ -f "/Applications/LibreOffice.app/Contents/MacOS/soffice" ]; then
-    SOFFICE_CMD="/Applications/LibreOffice.app/Contents/MacOS/soffice"
-else
-    echo "LibreOffice not found. Please install it first:"
-    echo "brew install --cask libreoffice"
-    exit 1
-fi
-
-# Convert first 3 chapters for demonstration
-count=0
-for file in "$PPT_DIR"/*.ppt; do
-    if [ $count -ge 3 ]; then
-        break
+# Loop through all PPT files
+for file in "$INPUT_DIR"/*.ppt; do
+    if [ -f "$file" ]; then
+        filename=$(basename "$file")
+        echo "Converting: $filename"
+        
+        # Convert using LibreOffice
+        soffice --headless --convert-to pdf --outdir "$OUTPUT_DIR" "$file"
+        
+        if [ $? -eq 0 ]; then
+            echo "✓ Converted: $filename"
+        else
+            echo "✗ Failed: $filename"
+        fi
     fi
-    
-    filename=$(basename "$file")
-    echo "Converting: $filename"
-    
-    # Convert to PDF
-    "$SOFFICE_CMD" --headless --convert-to pdf --outdir "$PDF_DIR" "$file"
-    
-    if [ $? -eq 0 ]; then
-        echo "✓ Successfully converted: $filename"
-    else
-        echo "✗ Failed to convert: $filename"
-    fi
-    
-    ((count++))
 done
 
-echo "Conversion completed! Check the $PDF_DIR directory."
-echo "Converted $count files for demonstration."
+echo "Conversion complete\! PDF files are in: $OUTPUT_DIR"
+echo "You can now serve these PDF files directly in your viewer."
+EOF < /dev/null

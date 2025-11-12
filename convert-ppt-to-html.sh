@@ -17,8 +17,11 @@ for file in "$INPUT_DIR"/*.ppt; do
         filename=$(basename "$file")
         echo "Converting: $filename"
         
-        # Convert using LibreOffice
-        soffice --headless --convert-to html --outdir "$OUTPUT_DIR" "$file"
+        # Convert using LibreOffice to PDF first, then HTML
+        soffice --headless --convert-to pdf --outdir "$OUTPUT_DIR" "$file"
+        
+        # Also try converting to HTML with impress format
+        soffice --headless --convert-to "html:impress8" --outdir "$OUTPUT_DIR" "$file"
         
         if [ $? -eq 0 ]; then
             echo "✓ Converted: $filename"
