@@ -5,7 +5,7 @@
       "src": "api/index.js",
       "use": "@vercel/node",
       "config": {
-        "maxLambdaSize": "50mb"
+        "maxLambdaSize": "25mb"
       }
     }
   ],
@@ -17,5 +17,10 @@
   ],
   "env": {
     "NODE_ENV": "production"
+  },
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 10
+    }
   }
 }

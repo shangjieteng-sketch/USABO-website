@@ -1,6 +1,6 @@
 // Use in-memory database for serverless environments
-const isVercel = process.env.VERCEL === '1';
-const dbPath = isVercel ? ':memory:' : require('path').join(__dirname, '..', 'database', 'users.db');
+const isServerless = process.env.VERCEL === '1' || process.env.AWS_EXECUTION_ENV;
+const dbPath = isServerless ? ':memory:' : require('path').join(__dirname, '..', 'database', 'users.db');
 
 function getDatabase() {
     const sqlite3 = require('sqlite3').verbose();

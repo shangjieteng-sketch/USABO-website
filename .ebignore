@@ -1,0 +1,16 @@
+node_modules/
+.git/
+.env
+.env.local
+.env.production.local
+.env.development.local
+public/ppt/
+PDF/
+*.ppt
+*.pptx
+*.pdf
+.vercel*
+vercel.json
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml

@@ -7,6 +7,8 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "setup": "node scripts/generate-secrets.js",
+    "deploy:aws": "scripts/deploy-aws.sh",
+    "setup:s3": "scripts/setup-s3.sh",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {

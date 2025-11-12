@@ -8,3 +8,7 @@ database/users.db
 README.md
 scripts/generate-secrets.js
 public/ppt/
+PDF/
+*.ppt
+*.pptx
+*.pdf

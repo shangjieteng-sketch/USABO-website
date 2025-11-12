@@ -10,8 +10,8 @@ const session = require('express-session');
 const { initDatabase } = require('./database/init');
 require('dotenv').config();
 
-// Check if running in Vercel serverless environment
-const isVercel = process.env.VERCEL === '1';
+// Check if running in serverless environment (Vercel or AWS Lambda)
+const isServerless = process.env.VERCEL === '1' || process.env.AWS_EXECUTION_ENV;
 
 // Environment validation
 function validateEnvironment() {
@@ -37,9 +37,9 @@ function validateEnvironment() {
 const app = express();
 const server = http.createServer(app);
 
-// Initialize Socket.IO only if not in Vercel serverless environment
+// Initialize Socket.IO only if not in serverless environment
 let io;
-if (!isVercel) {
+if (!isServerless) {
   io = socketIo(server, {
     cors: {
       origin: "*",
@@ -162,7 +162,7 @@ async function startServer() {
     console.log('Database initialized successfully');
     
     // Only start server if not in Vercel (Vercel handles this)
-    if (!isVercel) {
+    if (!isServerless) {
       server.listen(PORT, () => {
         console.log(`USABO Website running on port ${PORT}`);
         console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
@@ -172,14 +172,14 @@ async function startServer() {
     }
   } catch (error) {
     console.error('Failed to start server:', error);
-    if (!isVercel) {
+    if (!isServerless) {
       process.exit(1);
     }
   }
 }
 
 // Initialize the server
-if (isVercel) {
+if (isServerless) {
   // For Vercel: initialize async but don't start server
   startServer().catch((error) => {
     console.error('Initialization failed:', error);

@@ -1,541 +1,368 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>USABO Study Platform</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <link href="css/style.css" rel="stylesheet">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="nav-container">
-            <div class="nav-logo">
-                <h2>USABO Study Platform</h2>
-            </div>
-            <div class="nav-menu">
-                <a href="#home" class="nav-link">Home</a>
-                <a href="#textbook" class="nav-link">Textbook</a>
-                <a href="#experiments" class="nav-link">Experiments</a>
-                <a href="#problems" class="nav-link">Problem Sets</a>
-                <a href="#community" class="nav-link">Community</a>
-                <a href="#ai-agent" class="nav-link">AI Agent</a>
-                <button id="loginBtn" class="nav-btn">Login</button>
-            </div>
-        </div>
-    </nav>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="description" content="USABO Study Platform - Interactive Biology Learning">
+        <meta name="author" content="USABO Team">
+        <title>USABO Study Platform</title>
 
-    <main>
-        <!-- Home Section -->
-        <section id="home" class="section active">
-            <div class="hero">
-                <h1>USABO Study Platform</h1>
-                <p>Your comprehensive resource for USA Biology Olympiad preparation</p>
-                <div class="feature-grid">
-                    <div class="feature-card" onclick="navigateToSection('textbook')">
-                        <i class="fas fa-book"></i>
-                        <h3>Textbook Materials</h3>
-                        <p>Comprehensive study materials with molecular diagrams and detailed explanations</p>
-                    </div>
-                    <div class="feature-card" onclick="navigateToSection('experiments')">
-                        <i class="fas fa-flask"></i>
-                        <h3>Interactive Experiments</h3>
-                        <p>Virtual lab demonstrations and experiment methodologies</p>
-                    </div>
-                    <div class="feature-card" onclick="navigateToSection('problems')">
-                        <i class="fas fa-brain"></i>
-                        <h3>Problem Sets</h3>
-                        <p>Practice questions, real test problems, and AI-generated challenges</p>
-                    </div>
-                    <div class="feature-card" onclick="navigateToSection('community')">
-                        <i class="fas fa-users"></i>
-                        <h3>Community</h3>
-                        <p>Chat with fellow students and use memory card quizzes</p>
-                    </div>
-                    <div class="feature-card" onclick="navigateToSection('ai-agent')">
-                        <i class="fas fa-robot"></i>
-                        <h3>AI Study Assistant</h3>
-                        <p>Get personalized help and explanations from our AI tutor</p>
-                    </div>
-                </div>
-            </div>
-        </section>
+        <!-- CSS FILES -->        
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans&display=swap" rel="stylesheet">
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <link href="css/bootstrap-icons.css" rel="stylesheet">
+        <link href="css/templatemo-topic-listing.css" rel="stylesheet">      
+    </head>
+    
+    <body id="top">
+        <main>
+            <nav class="navbar navbar-expand-lg">
+                <div class="container">
+                    <a class="navbar-brand" href="index.html">
+                        <i class="bi-award"></i>
+                        <span>USABO</span>
+                    </a>
 
-        <!-- Textbook Section -->
-        <section id="textbook" class="section">
-            <div class="container">
-                <h2>Textbook Materials</h2>
-                <div class="textbook-grid">
-                    <div class="chapter-card">
-                        <div class="chapter-icon">🧬</div>
-                        <h3>Molecular Biology</h3>
-                        <p>DNA, RNA, protein synthesis, and molecular mechanisms</p>
-                        <button class="btn-primary">Study Chapter</button>
+                    <div class="d-lg-none ms-auto me-4">
+                        <a href="#top" class="navbar-icon bi-person smoothscroll"></a>
                     </div>
-                    <div class="chapter-card">
-                        <div class="chapter-icon">🔬</div>
-                        <h3>Cell Biology</h3>
-                        <p>Cell structure, organelles, and cellular processes</p>
-                        <button class="btn-primary">Study Chapter</button>
-                    </div>
-                    <div class="chapter-card">
-                        <div class="chapter-icon">🌿</div>
-                        <h3>Plant Biology</h3>
-                        <p>Plant anatomy, physiology, and development</p>
-                        <button class="btn-primary">Study Chapter</button>
-                    </div>
-                    <div class="chapter-card">
-                        <div class="chapter-icon">🦠</div>
-                        <h3>Microbiology</h3>
-                        <p>Bacteria, viruses, and microbial systems</p>
-                        <button class="btn-primary">Study Chapter</button>
-                    </div>
-                    <div class="chapter-card">
-                        <div class="chapter-icon">🧪</div>
-                        <h3>Biochemistry</h3>
-                        <p>Metabolic pathways and chemical processes</p>
-                        <button class="btn-primary">Study Chapter</button>
-                    </div>
-                    <div class="chapter-card">
-                        <div class="chapter-icon">🧠</div>
-                        <h3>Animal Physiology</h3>
-                        <p>Organ systems and physiological processes</p>
-                        <button class="btn-primary">Study Chapter</button>
-                    </div>
-                </div>
-                
-                <!-- Campbell Biology PowerPoint Section -->
-                <div class="campbell-ppt-section">
-                    <h3>📊 Campbell Biology PowerPoint Presentations</h3>
-                    <p>Complete set of Campbell Biology textbook PowerPoint presentations - click to preview</p>
-                    <div id="campbellPptList" class="campbell-ppt-list">
-                        <div class="loading">Loading PowerPoint files...</div>
-                    </div>
-                </div>
-            </div>
-        </section>
+    
+                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                        <span class="navbar-toggler-icon"></span>
+                    </button>
+    
+                    <div class="collapse navbar-collapse" id="navbarNav">
+                        <ul class="navbar-nav ms-lg-5 me-lg-auto">
+                            <li class="nav-item">
+                                <a class="nav-link click-scroll" href="#section_1">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link click-scroll" href="#section_2">Study Topics</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link click-scroll" href="#section_3">Textbook</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link click-scroll" href="#section_4">Experiments</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link click-scroll" href="#section_5">Problems</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link click-scroll" href="#section_6">Community</a>
+                            </li>
+                        </ul>
 
-        <!-- Experiments Section -->
-        <section id="experiments" class="section">
-            <div class="container">
-                <h2>Interactive Experiments</h2>
-                <div class="experiment-categories">
-                    <div class="category-tab active" data-category="molecular">Molecular Techniques</div>
-                    <div class="category-tab" data-category="microscopy">Microscopy</div>
-                    <div class="category-tab" data-category="biochemical">Biochemical Assays</div>
-                    <div class="category-tab" data-category="genetics">Genetic Analysis</div>
-                </div>
-                <div class="experiment-content">
-                    <div class="experiment-item">
-                        <h3>PCR Amplification</h3>
-                        <p>Learn the principles and steps of Polymerase Chain Reaction</p>
-                        <button class="btn-secondary">Start Simulation</button>
-                    </div>
-                    <div class="experiment-item">
-                        <h3>Gel Electrophoresis</h3>
-                        <p>Understand DNA separation and analysis techniques</p>
-                        <button class="btn-secondary">Start Simulation</button>
-                    </div>
-                    <div class="experiment-item">
-                        <h3>Enzyme Kinetics</h3>
-                        <p>Explore enzyme activity and inhibition patterns</p>
-                        <button class="btn-secondary">Start Simulation</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Problem Sets Section -->
-        <section id="problems" class="section">
-            <div class="container">
-                <h2>Problem Sets</h2>
-                <div class="problem-types">
-                    <div class="problem-card">
-                        <h3>Chapter Problems</h3>
-                        <p>Organized by textbook chapters</p>
-                        <button class="btn-primary">Browse</button>
-                    </div>
-                    <div class="problem-card">
-                        <h3>Past USABO Questions</h3>
-                        <p>Real competition problems</p>
-                        <button class="btn-primary">Practice</button>
-                    </div>
-                    <div class="problem-card">
-                        <h3>AI-Generated Problems</h3>
-                        <p>Custom practice questions</p>
-                        <button class="btn-primary">Generate</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Community Section -->
-        <section id="community" class="section">
-            <div class="container">
-                <h2>Community Features</h2>
-                <div class="community-grid">
-                    <div class="community-feature">
-                        <h3>Study Chat</h3>
-                        <div id="chatContainer" class="chat-container">
-                            <div id="chatMessages" class="chat-messages"></div>
-                            <div class="chat-input-container">
-                                <input type="text" id="chatInput" placeholder="Type your message...">
-                                <button id="sendMessage">Send</button>
-                            </div>
+                        <div class="d-none d-lg-block">
+                            <a href="#auth" class="navbar-icon bi-person smoothscroll"></a>
                         </div>
                     </div>
-                    <div class="community-feature">
-                        <h3>Memory Cards</h3>
-                        <p>Quizlet-style flashcards for quick review</p>
-                        <button class="btn-primary" onclick="startMemoryCards()">Start Cards</button>
-                    </div>
                 </div>
-            </div>
-        </section>
-
-        <!-- AI Agent Section -->
-        <section id="ai-agent" class="section">
-            <div class="container">
-                <h2>AI Study Assistant</h2>
-                <div class="ai-chat-container">
-                    <div id="aiChatMessages" class="ai-chat-messages"></div>
-                    <div class="ai-input-container">
-                        <input type="text" id="aiInput" placeholder="Ask me anything about biology...">
-                        <button id="sendAiMessage">Ask AI</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- Dashboard Section -->
-    <section id="dashboard" class="section dashboard-layout">
-        <aside class="dashboard-sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <h3>USABO Dashboard</h3>
-                </div>
-                <div class="sidebar-controls">
-                    <button class="sidebar-minimize" id="sidebarMinimize" title="Minimize sidebar">
-                        <i class="fas fa-chevron-left"></i>
-                    </button>
-                    <button class="sidebar-toggle" id="sidebarToggle" title="Toggle sidebar">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                </div>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <ul class="nav-menu">
-                    <li class="nav-item">
-                        <a href="#dashboard-home" class="nav-link active" data-section="dashboard-home">
-                            <i class="fas fa-home"></i>
-                            <span>Dashboard</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#dashboard-textbook" class="nav-link" data-section="dashboard-textbook">
-                            <i class="fas fa-book"></i>
-                            <span>Textbook</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#dashboard-experiments" class="nav-link" data-section="dashboard-experiments">
-                            <i class="fas fa-flask"></i>
-                            <span>Experiments</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#dashboard-problems" class="nav-link" data-section="dashboard-problems">
-                            <i class="fas fa-brain"></i>
-                            <span>Problem Sets</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#dashboard-community" class="nav-link" data-section="dashboard-community">
-                            <i class="fas fa-users"></i>
-                            <span>Community</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#dashboard-ai" class="nav-link" data-section="dashboard-ai">
-                            <i class="fas fa-robot"></i>
-                            <span>AI Assistant</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a href="#dashboard-progress" class="nav-link" data-section="dashboard-progress">
-                            <i class="fas fa-chart-line"></i>
-                            <span>Progress</span>
-                        </a>
-                    </li>
-                </ul>
             </nav>
-            
-            <div class="sidebar-footer">
-                <div class="user-profile" id="userProfile">
-                    <div class="user-avatar">
-                        <i class="fas fa-user"></i>
-                    </div>
-                    <div class="user-info">
-                        <span class="user-name">Student</span>
-                        <small class="user-email">student@example.com</small>
-                    </div>
-                </div>
-                <button class="logout-btn" id="logoutBtn" onclick="handleLogout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </button>
-            </div>
-        </aside>
-        
-        <main class="dashboard-main">
-            <header class="dashboard-header">
-                <div class="header-left">
-                    <button class="back-to-home" id="backToHome">
-                        <i class="fas fa-arrow-left"></i>
-                        <span>Back to Home</span>
-                    </button>
-                </div>
-                <div class="header-right">
-                    <div class="header-search">
-                        <input type="text" placeholder="Search..." id="dashboardSearch">
-                        <i class="fas fa-search"></i>
-                    </div>
-                </div>
-            </header>
-            
-            <div class="dashboard-content">
-                <!-- Dashboard Home -->
-                <div id="dashboard-home" class="dashboard-section active">
-                    <div class="welcome-section">
-                        <h1>Welcome to Your Study Dashboard</h1>
-                        <p>Your personalized learning hub for USABO preparation</p>
-                    </div>
-                    
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-book-open"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>12</h3>
-                                <p>Chapters Completed</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-flask"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>8</h3>
-                                <p>Experiments Done</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-trophy"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>95%</h3>
-                                <p>Average Score</p>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-icon">
-                                <i class="fas fa-clock"></i>
-                            </div>
-                            <div class="stat-info">
-                                <h3>24h</h3>
-                                <p>Study Time</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="recent-activity">
-                        <h2>Recent Activity</h2>
-                        <div class="activity-list">
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-book"></i>
+
+            <section class="hero-section d-flex justify-content-center align-items-center" id="section_1">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-lg-8 col-12 mx-auto">
+                            <h1 class="text-white text-center">Master Biology. Excel in USABO.</h1>
+                            <h6 class="text-center">Interactive study platform for biology olympiad preparation</h6>
+
+                            <form method="get" class="custom-form mt-4 pt-2 mb-lg-0 mb-5" role="search" id="searchForm">
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text bi-search" id="basic-addon1"></span>
+                                    <input name="keyword" type="search" class="form-control" id="keyword" placeholder="Cell Biology, Genetics, Ecology, Evolution..." aria-label="Search">
+                                    <button type="submit" class="form-control">Search Topics</button>
                                 </div>
-                                <div class="activity-content">
-                                    <h4>Completed Cell Biology Chapter</h4>
-                                    <p>2 hours ago</p>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-flask"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Finished PCR Simulation</h4>
-                                    <p>1 day ago</p>
-                                </div>
-                            </div>
-                            <div class="activity-item">
-                                <div class="activity-icon">
-                                    <i class="fas fa-brain"></i>
-                                </div>
-                                <div class="activity-content">
-                                    <h4>Solved 15 Practice Problems</h4>
-                                    <p>2 days ago</p>
-                                </div>
-                            </div>
+                            </form>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Dashboard Textbook -->
-                <div id="dashboard-textbook" class="dashboard-section">
-                    <h1>Textbook Materials</h1>
-                    <div class="textbook-dashboard">
-                        <div class="chapter-progress">
-                            <h3>Chapter Progress</h3>
-                            <div class="progress-list">
-                                <div class="progress-item">
-                                    <span>Molecular Biology</span>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: 85%"></div>
+            </section>
+
+            <section class="featured-section">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-4 col-12 mb-4 mb-lg-0">
+                            <div class="custom-block bg-white shadow-lg">
+                                <a href="#section_3">
+                                    <div class="d-flex">
+                                        <div>
+                                            <h5 class="mb-2">Campbell Textbook</h5>
+                                            <p class="mb-0">Complete Campbell Biology chapters with PowerPoint presentations and study materials.</p>
+                                        </div>
+                                        <span class="badge bg-design rounded-pill ms-auto">56</span>
                                     </div>
-                                    <span>85%</span>
-                                </div>
-                                <div class="progress-item">
-                                    <span>Cell Biology</span>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: 100%"></div>
+                                    <img src="images/topics/undraw_Educator_re_ju47.png" class="custom-block-image img-fluid" alt="">
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6 col-12">
+                            <div class="custom-block custom-block-overlay">
+                                <div class="d-flex flex-column h-100">
+                                    <img src="images/colleagues-working-cozy-office-medium-shot.jpg" class="custom-block-image img-fluid" alt="">
+                                    <div class="custom-block-overlay-text d-flex">
+                                        <div>
+                                            <h5 class="text-white mb-2">Interactive Learning</h5>
+                                            <p class="text-white">Engage with AI-powered study sessions, virtual experiments, and collaborative problem-solving with fellow biology students.</p>
+                                            <a href="#section_4" class="btn custom-btn mt-2 mt-lg-3">Start Learning</a>
+                                        </div>
+                                        <span class="badge bg-finance rounded-pill ms-auto">∞</span>
                                     </div>
-                                    <span>100%</span>
-                                </div>
-                                <div class="progress-item">
-                                    <span>Plant Biology</span>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: 60%"></div>
+                                    <div class="social-share d-flex">
+                                        <p class="text-white me-4">Share:</p>
+                                        <ul class="social-icon">
+                                            <li class="social-icon-item">
+                                                <a href="#" class="social-icon-link bi-twitter"></a>
+                                            </li>
+                                            <li class="social-icon-item">
+                                                <a href="#" class="social-icon-link bi-facebook"></a>
+                                            </li>
+                                            <li class="social-icon-item">
+                                                <a href="#" class="social-icon-link bi-share"></a>
+                                            </li>
+                                        </ul>
+                                        <a href="#" class="custom-icon bi-bookmark ms-auto"></a>
                                     </div>
-                                    <span>60%</span>
+                                    <div class="section-overlay"></div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Dashboard Experiments -->
-                <div id="dashboard-experiments" class="dashboard-section">
-                    <h1>Virtual Experiments</h1>
-                    <div class="experiments-dashboard">
-                        <p>Experiment tracking and results will be displayed here.</p>
+            </section>
+
+            <section class="explore-section section-padding" id="section_2">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h2 class="mb-4">Study Topics</h2>
+                        </div>
                     </div>
-                </div>
-                
-                <!-- Dashboard Problems -->
-                <div id="dashboard-problems" class="dashboard-section">
-                    <h1>Problem Sets</h1>
-                    <div class="problems-dashboard">
-                        <p>Practice problems and test scores will be displayed here.</p>
-                    </div>
-                </div>
-                
-                <!-- Dashboard Community -->
-                <div id="dashboard-community" class="dashboard-section">
-                    <h1>Community</h1>
-                    <div class="community-dashboard">
-                        <p>Study groups and community features will be displayed here.</p>
-                    </div>
-                </div>
-                
-                <!-- Dashboard AI -->
-                <div id="dashboard-ai" class="dashboard-section">
-                    <h1>AI Study Assistant</h1>
-                    <div class="ai-dashboard">
-                        <div class="ai-chat-container">
-                            <div id="dashboardAiChatMessages" class="ai-chat-messages"></div>
-                            <div class="ai-input-container">
-                                <input type="text" id="dashboardAiInput" placeholder="Ask me anything about biology...">
-                                <button id="sendDashboardAiMessage">Ask AI</button>
+
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="design-tab-pane" role="tabpanel">
+                                    <div class="row">
+                                        <div class="col-lg-4 col-md-6 col-12 mb-4 mb-lg-0">
+                                            <div class="custom-block bg-white shadow-lg">
+                                                <a href="#" onclick="showSection('textbook')">
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            <h5 class="mb-2">Cell Biology</h5>
+                                                            <p class="mb-0">Cell structure, organelles, and cellular processes</p>
+                                                        </div>
+                                                        <span class="badge bg-design rounded-pill ms-auto">12</span>
+                                                    </div>
+                                                    <img src="images/topics/undraw_Graduation_re_gthn.png" class="custom-block-image img-fluid" alt="">
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-6 col-12 mb-4 mb-lg-0">
+                                            <div class="custom-block bg-white shadow-lg">
+                                                <a href="#" onclick="showSection('textbook')">
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            <h5 class="mb-2">Genetics</h5>
+                                                            <p class="mb-0">Heredity, DNA, RNA, and genetic variations</p>
+                                                        </div>
+                                                        <span class="badge bg-design rounded-pill ms-auto">15</span>
+                                                    </div>
+                                                    <img src="images/topics/undraw_Finance_re_gnv2.png" class="custom-block-image img-fluid" alt="">
+                                                </a>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-lg-4 col-md-6 col-12">
+                                            <div class="custom-block bg-white shadow-lg">
+                                                <a href="#" onclick="showSection('experiments')">
+                                                    <div class="d-flex">
+                                                        <div>
+                                                            <h5 class="mb-2">Ecology</h5>
+                                                            <p class="mb-0">Ecosystems, biodiversity, and environmental biology</p>
+                                                        </div>
+                                                        <span class="badge bg-design rounded-pill ms-auto">8</span>
+                                                    </div>
+                                                    <img src="images/topics/undraw_Group_video_re_btu7.png" class="custom-block-image img-fluid" alt="">
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                
-                <!-- Dashboard Progress -->
-                <div id="dashboard-progress" class="dashboard-section">
-                    <h1>Study Progress</h1>
-                    <div class="progress-dashboard">
-                        <p>Detailed progress analytics will be displayed here.</p>
+            </section>
+
+            <!-- Textbook Section -->
+            <section class="section-padding" id="section_3">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h2 class="mb-4">Campbell Biology Textbook</h2>
+                            <p class="lead">Access complete chapter presentations and study materials</p>
+                        </div>
+                    </div>
+                    <div class="row" id="textbookContent">
+                        <div class="col-12">
+                            <div id="campbellPptList" class="campbell-ppt-list">
+                                <p class="text-center">Loading chapters...</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Experiments Section -->
+            <section class="section-padding bg-light" id="section_4">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h2 class="mb-4">Virtual Experiments</h2>
+                            <p class="lead">Interactive biology experiments and simulations</p>
+                        </div>
+                    </div>
+                    <div class="row" id="experimentsContent">
+                        <div class="col-lg-6 col-12 mb-4">
+                            <div class="custom-block bg-white shadow-lg">
+                                <div class="d-flex">
+                                    <div>
+                                        <h5 class="mb-2">DNA Extraction</h5>
+                                        <p class="mb-0">Learn the process of extracting DNA from biological samples</p>
+                                    </div>
+                                </div>
+                                <img src="images/topics/undraw_Redesign_feedback_re_jvm0.png" class="custom-block-image img-fluid" alt="">
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-12 mb-4">
+                            <div class="custom-block bg-white shadow-lg">
+                                <div class="d-flex">
+                                    <div>
+                                        <h5 class="mb-2">Microscopy</h5>
+                                        <p class="mb-0">Virtual microscope for examining cellular structures</p>
+                                    </div>
+                                </div>
+                                <img src="images/topics/undraw_online_ad_re_ol62.png" class="custom-block-image img-fluid" alt="">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Problems Section -->
+            <section class="section-padding" id="section_5">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h2 class="mb-4">Practice Problems</h2>
+                            <p class="lead">Challenge yourself with USABO-style questions</p>
+                        </div>
+                    </div>
+                    <div class="row" id="problemsContent">
+                        <div class="col-lg-4 col-md-6 col-12 mb-4">
+                            <div class="custom-block bg-white shadow-lg">
+                                <div class="d-flex">
+                                    <div>
+                                        <h5 class="mb-2">Beginner</h5>
+                                        <p class="mb-0">Foundation level biology problems</p>
+                                    </div>
+                                    <span class="badge bg-design rounded-pill ms-auto">25</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-12 mb-4">
+                            <div class="custom-block bg-white shadow-lg">
+                                <div class="d-flex">
+                                    <div>
+                                        <h5 class="mb-2">Intermediate</h5>
+                                        <p class="mb-0">Advanced biology concepts and applications</p>
+                                    </div>
+                                    <span class="badge bg-finance rounded-pill ms-auto">30</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4 col-md-6 col-12 mb-4">
+                            <div class="custom-block bg-white shadow-lg">
+                                <div class="d-flex">
+                                    <div>
+                                        <h5 class="mb-2">Expert</h5>
+                                        <p class="mb-0">USABO competition level challenges</p>
+                                    </div>
+                                    <span class="badge bg-music rounded-pill ms-auto">15</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Community Section -->
+            <section class="section-padding bg-light" id="section_6">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <h2 class="mb-4">Study Community</h2>
+                            <p class="lead">Connect with fellow biology students</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-lg-6 col-12 mb-4">
+                            <div class="custom-block bg-white shadow-lg">
+                                <div class="d-flex">
+                                    <div>
+                                        <h5 class="mb-2">Study Groups</h5>
+                                        <p class="mb-0">Join collaborative study sessions</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6 col-12 mb-4">
+                            <div class="custom-block bg-white shadow-lg">
+                                <div class="d-flex">
+                                    <div>
+                                        <h5 class="mb-2">Discussion Forum</h5>
+                                        <p class="mb-0">Ask questions and share knowledge</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Auth Section -->
+            <section class="section-padding" id="auth" style="min-height: 100vh;">
+                <div class="container">
+                    <div class="row justify-content-center">
+                        <div class="col-lg-6 col-12">
+                            <div class="custom-block bg-white shadow-lg p-4">
+                                <h3 class="text-center mb-4">Sign In to Continue</h3>
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-primary" onclick="loginWithGoogle()">
+                                        <i class="bi-google"></i> Sign in with Google
+                                    </button>
+                                    <button class="btn btn-outline-dark" onclick="loginWithGitHub()">
+                                        <i class="bi-github"></i> Sign in with GitHub
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
-    </section>
 
-    <!-- Login Modal -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span class="close">&times;</span>
-            <h2>Student Login</h2>
-            
-            <!-- OAuth Login Options -->
-            <div class="oauth-buttons">
-                <a href="/api/auth/google" class="oauth-btn google-btn">
-                    <i class="fab fa-google"></i>
-                    Continue with Google
-                </a>
-                <a href="/api/auth/github" class="oauth-btn github-btn">
-                    <i class="fab fa-github"></i>
-                    Continue with GitHub
-                </a>
-            </div>
-            
-            <div class="divider">
-                <span>OR</span>
-            </div>
-            
-            <!-- Traditional Login Form -->
-            <form id="loginForm">
-                <input type="email" id="email" placeholder="Email Address" required>
-                <input type="password" id="password" placeholder="Password" required>
-                <button type="submit">Login with Email</button>
-            </form>
-            <p>Don't have an account? <a href="#" id="registerLink">Register here</a></p>
-        </div>
-    </div>
-
-    <!-- Register Modal -->
-    <div id="registerModal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="closeRegister">&times;</span>
-            <h2>Student Registration</h2>
-            
-            <!-- OAuth Registration Options -->
-            <div class="oauth-buttons">
-                <a href="/api/auth/google" class="oauth-btn google-btn">
-                    <i class="fab fa-google"></i>
-                    Sign up with Google
-                </a>
-                <a href="/api/auth/github" class="oauth-btn github-btn">
-                    <i class="fab fa-github"></i>
-                    Sign up with GitHub
-                </a>
-            </div>
-            
-            <div class="divider">
-                <span>OR</span>
-            </div>
-            
-            <!-- Traditional Registration Form -->
-            <form id="registerForm">
-                <input type="text" id="regName" placeholder="Full Name" required>
-                <input type="email" id="regEmail" placeholder="Email Address" required>
-                <input type="password" id="regPassword" placeholder="Password" required>
-                <input type="password" id="regConfirmPassword" placeholder="Confirm Password" required>
-                <button type="submit">Create Account</button>
-            </form>
-            <p>Already have an account? <a href="#" id="loginLink">Login here</a></p>
-        </div>
-    </div>
-
-    <!-- Scripts -->
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="js/app.js"></script>
-</body>
+        <!-- JAVASCRIPT FILES -->
+        <script src="js/jquery.min.js"></script>
+        <script src="js/bootstrap.bundle.min.js"></script>
+        <script src="js/jquery.sticky.js"></script>
+        <script src="js/click-scroll.js"></script>
+        <script src="js/custom.js"></script>
+        <script src="js/app.js"></script>
+    </body>
 </html>
