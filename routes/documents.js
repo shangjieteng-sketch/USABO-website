@@ -3,12 +3,32 @@ const fs = require('fs');
 const path = require('path');
 const router = express.Router();
 
-// API endpoint to list PPT files from S3
+// API endpoint to list PPT files from S3 and local HTML files
 router.get('/api/ppt-files', async (req, res) => {
   const AWS = require('aws-sdk');
   const s3 = new AWS.S3({ region: 'us-east-1' });
   
   let files = [];
+  let htmlFiles = [];
+  
+  // Load HTML converted files from local directory
+  try {
+    const htmlDir = path.join(__dirname, '..', 'public', 'ppt-html');
+    const htmlFileList = fs.readdirSync(htmlDir);
+    htmlFiles = htmlFileList
+      .filter((f) => f.endsWith('.html'))
+      .map((name) => ({
+        name: name.replace('.html', '.ppt'),
+        size: fs.statSync(path.join(htmlDir, name)).size,
+        ext: 'html',
+        htmlUrl: `/ppt-html/${encodeURIComponent(name)}`,
+        viewerType: 'html'
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  } catch (htmlError) {
+    console.error('Error reading HTML directory:', htmlError);
+  }
+  
   try {
     const params = {
       Bucket: 'usabo-ppt-files',
@@ -22,7 +42,8 @@ router.get('/api/ppt-files', async (req, res) => {
         name: obj.Key.replace('ppt/', ''),
         size: obj.Size,
         ext: path.extname(obj.Key).toLowerCase().replace(".", ""),
-        s3Url: `https://usabo-ppt-files.s3.amazonaws.com/${obj.Key}`
+        s3Url: `https://usabo-ppt-files.s3.amazonaws.com/${obj.Key}`,
+        viewerType: 's3'
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
   } catch (e) {
@@ -37,14 +58,17 @@ router.get('/api/ppt-files', async (req, res) => {
           name,
           size: fs.statSync(path.join(dir, name)).size,
           ext: path.extname(name).toLowerCase().replace(".", ""),
-          s3Url: `/ppt/${encodeURIComponent(name)}`
+          s3Url: `/ppt/${encodeURIComponent(name)}`,
+          viewerType: 'local'
         }))
         .sort((a, b) => a.name.localeCompare(b.name));
     } catch (localError) {
       console.error('Error reading local directory:', localError);
     }
   }
-  res.json({ files });
+  // Combine HTML files with other files, prioritizing HTML versions
+  const allFiles = [...htmlFiles, ...files.filter(f => !htmlFiles.find(h => h.name === f.name))];
+  res.json({ files: allFiles });
 });
 
 // Main document viewer page
@@ -182,7 +206,11 @@ router.get('/', (req, res) => {
             document.getElementById('current-file-name').textContent = file.name;
             
             const downloadLink = document.getElementById('download-link');
-            downloadLink.href = file.s3Url || \`/ppt/\${encodeURIComponent(file.name)}\`;
+            if (file.ext === 'html') {
+                downloadLink.href = file.htmlUrl;
+            } else {
+                downloadLink.href = file.s3Url || \`/ppt/\${encodeURIComponent(file.name)}\`;
+            }
             downloadLink.style.display = 'inline-block';
             
             renderFileList(); // Update active state
@@ -192,6 +220,28 @@ router.get('/', (req, res) => {
         // Display file using multiple viewer options
         function displayFile(file) {
             const viewerContent = document.getElementById('viewer-content');
+            
+            if (file.ext === 'html') {
+                // Display HTML presentation directly
+                viewerContent.innerHTML = \`
+                    <div class="mb-3">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-primary btn-sm active" disabled>
+                                HTML Presentation
+                            </button>
+                            <a href="\${file.htmlUrl}" class="btn btn-outline-primary btn-sm" target="_blank">
+                                Open in New Tab
+                            </a>
+                        </div>
+                    </div>
+                    <iframe src="\${file.htmlUrl}" 
+                            class="viewer-iframe" 
+                            title="\${file.name}"
+                            style="background: white;">
+                    </iframe>\`;
+                return;
+            }
+            
             const fileUrl = file.s3Url || \`\${window.location.origin}/ppt/\${encodeURIComponent(file.name)}\`;
             
             if (file.ext === 'pdf') {
