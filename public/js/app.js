@@ -659,11 +659,20 @@ window.handleLogout = function() {
 // Load Campbell Biology PowerPoint files
 async function loadCampbellPPT() {
     try {
+        console.log('Loading Campbell PPT files...');
         const response = await fetch(`${window.location.origin}/api/textbook/campbell-ppt`);
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
         const data = await response.json();
+        console.log('Campbell data received:', data);
         
         const list = document.getElementById('campbellPptList');
         if (list && data.files) {
+            console.log('Rendering', data.files.length, 'Campbell chapters');
             list.innerHTML = data.files.map((file, index) => `
                 <div class="ppt-chapter-item" data-url="${encodeURIComponent(file.downloadUrl || file.filename || '')}" data-title="${file.title.replace(/"/g, '&quot;')}" data-chapter="${file.chapter}">
                     <div class="chapter-number">${file.chapter}</div>
