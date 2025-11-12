@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PPT Viewer - USABO</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .file-list { max-height: 400px; overflow-y: auto; border: 1px solid #ddd; }
+        .file-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #eee; }
+        .file-item:hover { background: #f8f9fa; }
+        .file-item.active { background: #e3f2fd; }
+        .viewer { width: 100%; height: 600px; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+    <div class="container mt-4">
+        <h2>PowerPoint Viewer</h2>
+        
+        <div class="row">
+            <!-- File List -->
+            <div class="col-md-4">
+                <h5>Files</h5>
+                <div id="file-list" class="file-list">Loading...</div>
+            </div>
+            
+            <!-- Viewer -->
+            <div class="col-md-8">
+                <h5 id="current-file">Select a file</h5>
+                <div class="mb-2">
+                    <button onclick="useGoogleViewer()" class="btn btn-sm btn-outline-primary">Google Viewer</button>
+                    <button onclick="useOfficeViewer()" class="btn btn-sm btn-outline-primary">Office Viewer</button>
+                    <a id="download-btn" href="#" class="btn btn-sm btn-success" download>Download</a>
+                </div>
+                <div id="viewer-container">
+                    <div class="viewer d-flex align-items-center justify-content-center bg-light">
+                        Select a PowerPoint file to view
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let files = [];
+        let currentFileUrl = '';
+        let currentFileName = '';
+
+        // Load files
+        fetch('/api/ppt-files')
+            .then(r => r.json())
+            .then(data => {
+                files = data.files;
+                renderFiles();
+            });
+
+        function renderFiles() {
+            const html = files.map(f => 
+                `<div class="file-item" onclick="selectFile('${f.name}')">
+                    ${f.name}
+                </div>`
+            ).join('');
+            document.getElementById('file-list').innerHTML = html;
+        }
+
+        function selectFile(filename) {
+            currentFileName = filename;
+            currentFileUrl = `/ppt/${encodeURIComponent(filename)}`;
+            
+            document.getElementById('current-file').textContent = filename;
+            document.getElementById('download-btn').href = currentFileUrl;
+            
+            // Update active state
+            document.querySelectorAll('.file-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.textContent.trim() === filename) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Default to Google viewer
+            useGoogleViewer();
+        }
+
+        function useGoogleViewer() {
+            if (!currentFileUrl) return;
+            const fullUrl = window.location.origin + currentFileUrl;
+            const googleUrl = `https://docs.google.com/gview?url=${encodeURIComponent(fullUrl)}&embedded=true`;
+            
+            document.getElementById('viewer-container').innerHTML = 
+                `<iframe src="${googleUrl}" class="viewer"></iframe>`;
+        }
+
+        function useOfficeViewer() {
+            if (!currentFileUrl) return;
+            const fullUrl = window.location.origin + currentFileUrl;
+            const officeUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
+            
+            document.getElementById('viewer-container').innerHTML = 
+                `<iframe src="${officeUrl}" class="viewer" allowfullscreen></iframe>`;
+        }
+    </script>
+</body>
+</html>

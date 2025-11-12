@@ -123,6 +123,9 @@ app.use('/api/experiments', require('./routes/experiments'));
 app.use('/api/problems', require('./routes/problems'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/community', require('./routes/community'));
+app.use('/documents', require('./routes/documents'));
+// Also mount the documents route for the API
+app.use('/', require('./routes/documents'));
 
 // Socket.io for real-time chat (only if not in Vercel)
 if (io) {

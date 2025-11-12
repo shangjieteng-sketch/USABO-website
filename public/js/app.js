@@ -682,7 +682,7 @@ async function loadCampbellPPT() {
                     </div>
                     <div class="chapter-actions">
                         <button class="preview-btn">
-                            <i class="fas fa-eye"></i> Preview
+                            <i class="fas fa-eye"></i> View Chapter
                         </button>
                         <a href="${file.downloadUrl}" download class="download-link">
                             <i class="fas fa-download"></i>
@@ -702,10 +702,10 @@ async function loadCampbellPPT() {
                 }
                 
                 if (pptItem) {
-                    const url = decodeURIComponent(pptItem.dataset.url);
                     const title = pptItem.dataset.title;
                     const chapter = parseInt(pptItem.dataset.chapter);
-                    previewPPT(encodeURIComponent(url), title, chapter);
+                    // Navigate to dedicated PPT viewer page
+                    window.location.href = `/ppt-viewer.html?chapter=${chapter}&title=${encodeURIComponent(title)}`;
                 }
             });
         } else {

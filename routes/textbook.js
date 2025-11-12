@@ -325,7 +325,7 @@ router.get('/search', (req, res) => {
     }
 });
 
-// Get Campbell Biology PowerPoint files
+// Get Campbell Biology PowerPoint files with embed info
 router.get('/campbell-ppt', (req, res) => {
     try {
         const fs = require('fs');
@@ -345,12 +345,18 @@ router.get('/campbell-ppt', (req, res) => {
                     const chapterMatch = name.match(/^(\d+)/);
                     const chapterNum = chapterMatch ? parseInt(chapterMatch[1]) : index + 1;
                     
+                    const downloadUrl = `/ppt/${file}`;
+                    const fullUrl = `${req.protocol}://${req.get('host')}${downloadUrl}`;
+                    const embedSrc = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(fullUrl);
+                    
                     return {
                         id: index + 1,
                         filename: file,
                         title: name.replace(/^\d+[-_\s]*/, '').replace(/_/g, ' '),
                         chapter: chapterNum,
-                        downloadUrl: `/ppt/${file}`
+                        downloadUrl: downloadUrl,
+                        embedUrl: embedSrc,
+                        type: 'office'
                     };
                 })
                 .sort((a, b) => a.chapter - b.chapter);
