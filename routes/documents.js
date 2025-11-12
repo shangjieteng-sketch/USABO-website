@@ -11,22 +11,46 @@ router.get('/api/ppt-files', async (req, res) => {
   let files = [];
   let htmlFiles = [];
   
-  // Load HTML converted files from local directory
+  // Load HTML converted files from S3
   try {
-    const htmlDir = path.join(__dirname, '..', 'public', 'ppt-html');
-    const htmlFileList = fs.readdirSync(htmlDir);
-    htmlFiles = htmlFileList
-      .filter((f) => f.endsWith('.html'))
-      .map((name) => ({
-        name: name.replace('.html', '.ppt'),
-        size: fs.statSync(path.join(htmlDir, name)).size,
+    const AWS = require('aws-sdk');
+    const s3 = new AWS.S3({ region: 'us-east-1' });
+    
+    const htmlParams = {
+      Bucket: 'usabo-ppt-files',
+      Prefix: 'ppt-html/'
+    };
+    
+    const htmlData = await s3.listObjectsV2(htmlParams).promise();
+    htmlFiles = htmlData.Contents
+      .filter((obj) => obj.Key.endsWith('.html'))
+      .map((obj) => ({
+        name: obj.Key.replace('ppt-html/', '').replace('.html', '.ppt'),
+        size: obj.Size,
         ext: 'html',
-        htmlUrl: `/ppt-html/${encodeURIComponent(name)}`,
+        htmlUrl: `https://usabo-ppt-files.s3.amazonaws.com/${obj.Key}`,
         viewerType: 'html'
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
   } catch (htmlError) {
-    console.error('Error reading HTML directory:', htmlError);
+    console.error('Error reading HTML from S3:', htmlError);
+    // Fallback to local files if S3 fails
+    try {
+      const htmlDir = path.join(__dirname, '..', 'public', 'ppt-html');
+      const htmlFileList = fs.readdirSync(htmlDir);
+      htmlFiles = htmlFileList
+        .filter((f) => f.endsWith('.html'))
+        .map((name) => ({
+          name: name.replace('.html', '.ppt'),
+          size: fs.statSync(path.join(htmlDir, name)).size,
+          ext: 'html',
+          htmlUrl: `/ppt-html/${encodeURIComponent(name)}`,
+          viewerType: 'html'
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    } catch (localHtmlError) {
+      console.error('Error reading local HTML directory:', localHtmlError);
+    }
   }
   
   try {
