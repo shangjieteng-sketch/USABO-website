@@ -3,22 +3,46 @@ const fs = require('fs');
 const path = require('path');
 const router = express.Router();
 
-// API endpoint to list PPT files
-router.get('/api/ppt-files', (req, res) => {
-  const dir = path.join(__dirname, '..', 'public', 'ppt');
+// API endpoint to list PPT files from S3
+router.get('/api/ppt-files', async (req, res) => {
+  const AWS = require('aws-sdk');
+  const s3 = new AWS.S3({ region: 'us-east-1' });
+  
   let files = [];
   try {
-    const fileList = fs.readdirSync(dir);
-    files = fileList
-      .filter((f) => /\.(pptx|ppt|pdf|docx|xlsx)$/i.test(f))
-      .map((name) => ({
-        name,
-        size: fs.statSync(path.join(dir, name)).size,
-        ext: path.extname(name).toLowerCase().replace(".", ""),
+    const params = {
+      Bucket: 'usabo-ppt-files',
+      Prefix: 'ppt/'
+    };
+    
+    const data = await s3.listObjectsV2(params).promise();
+    files = data.Contents
+      .filter((obj) => /\.(pptx|ppt|pdf|docx|xlsx)$/i.test(obj.Key))
+      .map((obj) => ({
+        name: obj.Key.replace('ppt/', ''),
+        size: obj.Size,
+        ext: path.extname(obj.Key).toLowerCase().replace(".", ""),
+        s3Url: `https://usabo-ppt-files.s3.amazonaws.com/${obj.Key}`
       }))
       .sort((a, b) => a.name.localeCompare(b.name));
   } catch (e) {
-    console.error('Error reading directory:', e);
+    console.error('Error reading S3:', e);
+    // Fallback to local files if S3 fails
+    try {
+      const dir = path.join(__dirname, '..', 'public', 'ppt');
+      const fileList = fs.readdirSync(dir);
+      files = fileList
+        .filter((f) => /\.(pptx|ppt|pdf|docx|xlsx)$/i.test(f))
+        .map((name) => ({
+          name,
+          size: fs.statSync(path.join(dir, name)).size,
+          ext: path.extname(name).toLowerCase().replace(".", ""),
+          s3Url: `/ppt/${encodeURIComponent(name)}`
+        }))
+        .sort((a, b) => a.name.localeCompare(b.name));
+    } catch (localError) {
+      console.error('Error reading local directory:', localError);
+    }
   }
   res.json({ files });
 });
@@ -158,7 +182,7 @@ router.get('/', (req, res) => {
             document.getElementById('current-file-name').textContent = file.name;
             
             const downloadLink = document.getElementById('download-link');
-            downloadLink.href = \`/ppt/\${encodeURIComponent(file.name)}\`;
+            downloadLink.href = file.s3Url || \`/ppt/\${encodeURIComponent(file.name)}\`;
             downloadLink.style.display = 'inline-block';
             
             renderFileList(); // Update active state
@@ -168,7 +192,7 @@ router.get('/', (req, res) => {
         // Display file using multiple viewer options
         function displayFile(file) {
             const viewerContent = document.getElementById('viewer-content');
-            const fileUrl = \`\${window.location.origin}/ppt/\${encodeURIComponent(file.name)}\`;
+            const fileUrl = file.s3Url || \`\${window.location.origin}/ppt/\${encodeURIComponent(file.name)}\`;
             
             if (file.ext === 'pdf') {
                 // Use PDF.js for better PDF viewing
