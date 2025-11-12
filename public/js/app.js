@@ -10,6 +10,15 @@ try {
     console.error('Socket.IO failed to initialize:', error);
 }
 
+// Helper function for safe element access
+function safeGetElement(id) {
+    const element = document.getElementById(id);
+    if (!element) {
+        console.log(`Element with id '${id}' not found`);
+    }
+    return element;
+}
+
 // Navigation functionality
 function navigateToSection(sectionId) {
     // Hide all sections
@@ -38,7 +47,7 @@ document.querySelectorAll('.nav-link').forEach(link => {
     });
 });
 
-// Modal functionality
+// Modal functionality (with null checks)
 const loginModal = document.getElementById('loginModal');
 const registerModal = document.getElementById('registerModal');
 const loginBtn = document.getElementById('loginBtn');
@@ -240,13 +249,21 @@ function enableChatFeatures() {
     }
 }
 
-// Chat message sending
-document.getElementById('sendMessage').addEventListener('click', sendChatMessage);
-document.getElementById('chatInput').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        sendChatMessage();
-    }
-});
+// Chat message sending (only if elements exist)
+const sendMessageBtn = document.getElementById('sendMessage');
+const chatInput = document.getElementById('chatInput');
+
+if (sendMessageBtn) {
+    sendMessageBtn.addEventListener('click', sendChatMessage);
+}
+
+if (chatInput) {
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendChatMessage();
+        }
+    });
+}
 
 function sendChatMessage() {
     const input = document.getElementById('chatInput');
@@ -283,12 +300,21 @@ if (socket) {
 }
 
 // AI Chat functionality
-document.getElementById('sendAiMessage').addEventListener('click', sendAiMessage);
-document.getElementById('aiInput').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') {
-        sendAiMessage();
-    }
-});
+// AI chat functionality (with null checks)
+const sendAiMessageBtn = document.getElementById('sendAiMessage');
+const aiInput = document.getElementById('aiInput');
+
+if (sendAiMessageBtn) {
+    sendAiMessageBtn.addEventListener('click', sendAiMessage);
+}
+
+if (aiInput) {
+    aiInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            sendAiMessage();
+        }
+    });
+}
 
 async function sendAiMessage() {
     const input = document.getElementById('aiInput');
@@ -636,7 +662,7 @@ async function loadCampbellPPT() {
         const list = document.getElementById('campbellPptList');
         if (list && data.files) {
             list.innerHTML = data.files.map((file, index) => `
-                <div class="ppt-chapter-item" onclick="previewPPT('${encodeURIComponent(file.filename)}', '${file.title.replace(/'/g, "\\'")}', ${file.chapter})">
+                <div class="ppt-chapter-item" onclick="previewPPT('${encodeURIComponent(file.downloadUrl || file.filename || '')}', '${file.title.replace(/'/g, "\\'")}', ${file.chapter})">
                     <div class="chapter-number">${file.chapter}</div>
                     <div class="chapter-content">
                         <h4>${file.title}</h4>
@@ -663,9 +689,14 @@ async function loadCampbellPPT() {
 }
 
 // Preview PowerPoint function
-function previewPPT(encodedFilename, title, chapter) {
-    const filename = decodeURIComponent(encodedFilename);
-    console.log('Opening preview for:', filename, title, chapter);
+function previewPPT(encodedUrl, title, chapter) {
+    const downloadUrl = decodeURIComponent(encodedUrl);
+    console.log('Opening preview for:', downloadUrl, title, chapter);
+    
+    // Extract filename from URL for display
+    const filename = downloadUrl.includes('/') ? 
+        downloadUrl.split('/').pop() : 
+        `Chapter_${chapter.toString().padStart(2, '0')}_${title.replace(/\s+/g, '_')}.ppt`;
     
     const modalHtml = `
         <div id="pptModal" class="modal" style="display: block;">
@@ -679,7 +710,7 @@ function previewPPT(encodedFilename, title, chapter) {
                         <p class="preview-text">Campbell Biology Chapter ${chapter} - ${title}</p>
                         <p class="preview-text">This PowerPoint presentation contains detailed slides covering the chapter content.</p>
                         <div class="preview-actions">
-                            <a href="/ppt/${encodeURIComponent(filename)}" download class="download-btn-large">
+                            <a href="${downloadUrl}" download="${filename}" class="download-btn-large">
                                 <i class="fas fa-download"></i> Download PPT File
                             </a>
                             <button onclick="closePPTModal()" class="close-btn">Close</button>
@@ -705,6 +736,21 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeDashboardNavigation();
     loadCampbellPPT();
     
+    // Handle OAuth callback if present
+    handleAuthCallback();
+    
+    // Add login button event listeners
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    const githubLoginBtn = document.getElementById('githubLoginBtn');
+    
+    if (googleLoginBtn) {
+        googleLoginBtn.addEventListener('click', loginWithGoogle);
+    }
+    
+    if (githubLoginBtn) {
+        githubLoginBtn.addEventListener('click', loginWithGitHub);
+    }
+    
     // Add logout button event listener with delegation
     document.addEventListener('click', (e) => {
         if (e.target && (e.target.id === 'logoutBtn' || e.target.closest('#logoutBtn'))) {
@@ -714,3 +760,63 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+// OAuth Login Functions
+function loginWithGoogle() {
+    console.log('Redirecting to Google OAuth...');
+    window.location.href = '/api/auth/google';
+}
+
+function loginWithGitHub() {
+    console.log('Redirecting to GitHub OAuth...');
+    window.location.href = '/api/auth/github';
+}
+
+// Handle OAuth callback tokens
+function handleAuthCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    const userParam = urlParams.get('user');
+    
+    if (token && userParam) {
+        try {
+            // Store token
+            localStorage.setItem('authToken', token);
+            
+            // Parse user data
+            const user = JSON.parse(decodeURIComponent(userParam));
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            
+            console.log('Login successful:', user);
+            
+            // Clean URL and show success
+            window.history.replaceState({}, document.title, window.location.pathname);
+            
+            // Show success message or update UI
+            showLoginSuccess(user);
+            
+        } catch (error) {
+            console.error('Error processing auth callback:', error);
+        }
+    }
+}
+
+function showLoginSuccess(user) {
+    // Create a simple success notification
+    const notification = document.createElement('div');
+    notification.innerHTML = `
+        <div style="position: fixed; top: 20px; right: 20px; background: #28a745; color: white; padding: 15px 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 1000;">
+            <strong>Login Successful!</strong><br>
+            Welcome, ${user.name}!
+            <button onclick="this.parentElement.remove()" style="background: none; border: none; color: white; float: right; font-size: 18px; cursor: pointer;">&times;</button>
+        </div>
+    `;
+    document.body.appendChild(notification);
+    
+    // Auto-remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.remove();
+        }
+    }, 5000);
+}
