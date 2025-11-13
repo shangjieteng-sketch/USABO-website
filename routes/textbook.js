@@ -326,53 +326,84 @@ router.get('/search', (req, res) => {
 });
 
 // Get Campbell Biology PowerPoint files with embed info
-router.get('/campbell-ppt', (req, res) => {
+router.get('/campbell-ppt', async (req, res) => {
     try {
-        const fs = require('fs');
-        const path = require('path');
-        
-        // Try to read from local files first (development)
-        const pptDir = path.join(__dirname, '..', 'public', 'ppt');
+        const AWS = require('aws-sdk');
+        const s3 = new AWS.S3({ region: 'us-east-1' });
         let pptFiles = [];
         
-        if (fs.existsSync(pptDir)) {
-            // Development mode - read from local files
-            const files = fs.readdirSync(pptDir);
-            pptFiles = files
-                .filter(file => file.endsWith('.ppt'))
-                .map((file, index) => {
-                    const name = file.replace('.ppt', '');
+        // Try to load from S3 first
+        try {
+            const htmlParams = {
+                Bucket: 'usabo-ppt-files',
+                Prefix: 'ppt-html/'
+            };
+            
+            const htmlData = await s3.listObjectsV2(htmlParams).promise();
+            pptFiles = htmlData.Contents
+                .filter((obj) => obj.Key.endsWith('.html'))
+                .map((obj, index) => {
+                    const filename = obj.Key.replace('ppt-html/', '');
+                    const name = filename.replace('.html', '');
                     const chapterMatch = name.match(/^(\d+)/);
                     const chapterNum = chapterMatch ? parseInt(chapterMatch[1]) : index + 1;
                     
-                    const downloadUrl = `/ppt/${file}`;
-                    const fullUrl = `${req.protocol}://${req.get('host')}${downloadUrl}`;
-                    const embedSrc = 'https://view.officeapps.live.com/op/embed.aspx?src=' + encodeURIComponent(fullUrl);
+                    // Clean up the title
+                    let title = name.replace(/^\d+[-_\s]*/, '').replace(/_/g, ' ');
+                    title = title.replace(/\.ppt$/, ''); // Remove any remaining .ppt extension
+                    
+                    const s3HtmlUrl = `https://usabo-ppt-files.s3.amazonaws.com/${obj.Key}`;
+                    const s3PptUrl = `https://usabo-ppt-files.s3.amazonaws.com/ppt/${name}.ppt`;
                     
                     return {
                         id: index + 1,
-                        filename: file,
-                        title: name.replace(/^\d+[-_\s]*/, '').replace(/_/g, ' '),
+                        filename: filename,
+                        title: title,
                         chapter: chapterNum,
-                        downloadUrl: downloadUrl,
-                        embedUrl: embedSrc,
-                        type: 'office'
+                        downloadUrl: s3PptUrl,
+                        htmlUrl: s3HtmlUrl,
+                        type: 'html'
                     };
                 })
                 .sort((a, b) => a.chapter - b.chapter);
-        } else {
-            // Production mode - use external links
-            const linksPath = path.join(__dirname, '..', 'public', 'data', 'campbell-ppt-links.json');
-            if (fs.existsSync(linksPath)) {
-                const links = JSON.parse(fs.readFileSync(linksPath, 'utf8'));
-                pptFiles = links;
+                
+        } catch (s3Error) {
+            console.error('Error reading from S3:', s3Error);
+            
+            // Fallback to local files if available
+            const fs = require('fs');
+            const path = require('path');
+            const pptDir = path.join(__dirname, '..', 'public', 'ppt');
+            
+            if (fs.existsSync(pptDir)) {
+                const files = fs.readdirSync(pptDir);
+                pptFiles = files
+                    .filter(file => file.endsWith('.ppt'))
+                    .map((file, index) => {
+                        const name = file.replace('.ppt', '');
+                        const chapterMatch = name.match(/^(\d+)/);
+                        const chapterNum = chapterMatch ? parseInt(chapterMatch[1]) : index + 1;
+                        
+                        let title = name.replace(/^\d+[-_\s]*/, '').replace(/_/g, ' ');
+                        
+                        return {
+                            id: index + 1,
+                            filename: file,
+                            title: title,
+                            chapter: chapterNum,
+                            downloadUrl: `/ppt/${file}`,
+                            type: 'local'
+                        };
+                    })
+                    .sort((a, b) => a.chapter - b.chapter);
             } else {
-                // Fallback - generate basic list
+                // Ultimate fallback - basic chapter list
                 pptFiles = Array.from({ length: 56 }, (_, i) => ({
                     id: i + 1,
                     chapter: i + 1,
                     title: `Chapter ${i + 1}`,
-                    downloadUrl: `https://github.com/shangjieteng-sketch/USABO-website/releases/download/v1.0/chapter_${String(i + 1).padStart(2, '0')}.ppt`
+                    downloadUrl: `#`,
+                    type: 'placeholder'
                 }));
             }
         }

@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campbell Biology Chapter Viewer - USABO</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { margin: 0; font-family: 'Open Sans', sans-serif; background: #f8f9fa; }
+        .navbar { background: #13547a !important; }
+        .navbar-brand { color: white !important; }
+        .nav-link { color: white !important; }
+        
+        .slide-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            margin: 20px auto;
+            padding: 40px;
+            max-width: 900px;
+            min-height: 600px;
+            position: relative;
+        }
+        
+        .slide-content {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .slide-content h1, .slide-content h2, .slide-content h3 {
+            color: #2c3e50;
+            font-weight: bold;
+            margin: 20px 0 15px 0;
+        }
+        
+        .slide-content h1 { font-size: 2.5rem; }
+        .slide-content h2 { font-size: 2rem; }
+        .slide-content h3 { font-size: 1.5rem; }
+        
+        .slide-content p {
+            margin: 10px 0;
+        }
+        
+        .slide-content ul, .slide-content ol {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        
+        .slide-content li {
+            margin: 8px 0;
+            list-style: disc;
+        }
+        
+        .slide-content img {
+            max-width: 100%;
+            height: auto;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .navigation-controls {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: white;
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            z-index: 1000;
+        }
+        
+        .nav-btn {
+            background: #13547a;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        .nav-btn:hover {
+            background: #0d4057;
+            transform: translateY(-2px);
+        }
+        
+        .nav-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .slide-counter {
+            background: #e9ecef;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+            color: #495057;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .loading-spinner, .error-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 400px;
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .chapter-header {
+            background: linear-gradient(135deg, #13547a 0%, #0d4057 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background: #e9ecef;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1001;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #28a745;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+    </div>
+
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi-dna"></i>
+                <span>USABO</span>
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-lg-5 me-lg-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#section_1">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#section_3">Textbook</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/documents">Documents</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="chapter-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 id="chapter-title" class="mb-0">Loading chapter...</h1>
+                    <small>Campbell Biology</small>
+                </div>
+                <div>
+                    <a href="/#section_3" class="btn btn-outline-light me-2">
+                        <i class="bi-arrow-left"></i> Back to Textbook
+                    </a>
+                    <a id="download-link" href="#" class="btn btn-light" download style="display: none;">
+                        <i class="bi-download"></i> Download PPT
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="slide-container">
+            <div id="slide-content" class="slide-content">
+                <div class="loading-spinner">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3">Loading presentation...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="navigation-controls">
+        <button id="prev-btn" class="nav-btn" onclick="previousSlide()">
+            <i class="bi-chevron-left"></i> Previous
+        </button>
+        <span id="slide-counter" class="slide-counter">1 / 1</span>
+        <button id="next-btn" class="nav-btn" onclick="nextSlide()">
+            Next <i class="bi-chevron-right"></i>
+        </button>
+    </div>
+
+    <script>
+        let slides = [];
+        let currentSlide = 0;
+        let chapterData = null;
+
+        // Get URL parameters
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                chapter: params.get('chapter'),
+                title: params.get('title')
+            };
+        }
+
+        // Load presentation and parse slides
+        async function loadPresentation() {
+            const { chapter, title } = getUrlParams();
+            
+            if (!chapter) {
+                showError('Invalid chapter parameter');
+                return;
+            }
+
+            try {
+                // Fetch Campbell PPT data from API
+                const response = await fetch(`${window.location.origin}/api/textbook/campbell-ppt`);
+                const data = await response.json();
+                
+                if (!data.files || data.files.length === 0) {
+                    showError('No presentations available');
+                    return;
+                }
+                
+                // Find the chapter by number
+                chapterData = data.files.find(file => file.chapter === parseInt(chapter));
+                
+                if (!chapterData) {
+                    showError(`Chapter ${chapter} not found`);
+                    return;
+                }
+
+                // Update page title and header
+                const displayTitle = chapterData.title || title || `Chapter ${chapter}`;
+                document.title = `${displayTitle} - Campbell Biology - USABO`;
+                document.getElementById('chapter-title').textContent = displayTitle;
+
+                // Show download link
+                if (chapterData.downloadUrl) {
+                    document.getElementById('download-link').href = chapterData.downloadUrl;
+                    document.getElementById('download-link').style.display = 'inline-block';
+                }
+
+                // Fetch and parse HTML content
+                if (chapterData.htmlUrl) {
+                    await parseSlides(chapterData.htmlUrl);
+                } else {
+                    showError('Presentation file not available');
+                }
+
+            } catch (error) {
+                console.error('Error loading presentation:', error);
+                showError('Failed to load presentation data');
+            }
+        }
+
+        // Parse slides from HTML content
+        async function parseSlides(htmlUrl) {
+            try {
+                const response = await fetch(htmlUrl);
+                const htmlContent = await response.text();
+                
+                // Create a temporary container to parse the HTML
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = htmlContent;
+                
+                // Extract all slide divs (pages)
+                const slideElements = tempDiv.querySelectorAll('div[id^="page"]');
+                slides = [];
+                
+                slideElements.forEach((slideElement, index) => {
+                    const slideContent = extractSlideContent(slideElement);
+                    if (slideContent.trim()) {
+                        slides.push({
+                            number: index + 1,
+                            content: slideContent,
+                            element: slideElement.cloneNode(true)
+                        });
+                    }
+                });
+                
+                if (slides.length === 0) {
+                    showError('No slides found in presentation');
+                    return;
+                }
+                
+                // Display first slide
+                currentSlide = 0;
+                displaySlide();
+                updateNavigation();
+                
+            } catch (error) {
+                console.error('Error parsing slides:', error);
+                showError('Failed to parse presentation slides');
+            }
+        }
+
+        // Extract and clean slide content
+        function extractSlideContent(slideElement) {
+            const clonedElement = slideElement.cloneNode(true);
+            
+            // Remove script tags and other unwanted elements
+            clonedElement.querySelectorAll('script, style').forEach(el => el.remove());
+            
+            // Clean up positioning styles that cause layout issues
+            clonedElement.querySelectorAll('div[style*="position:absolute"]').forEach(div => {
+                div.style.position = 'static';
+                div.style.left = 'auto';
+                div.style.top = 'auto';
+                div.style.margin = '10px 0';
+                div.style.display = 'block';
+            });
+            
+            // Improve text visibility and formatting
+            clonedElement.querySelectorAll('p, span, div').forEach(el => {
+                if (el.textContent.trim()) {
+                    el.style.fontSize = '16px';
+                    el.style.lineHeight = '1.6';
+                    el.style.color = '#333';
+                    el.style.margin = '10px 0';
+                }
+            });
+            
+            // Style images
+            clonedElement.querySelectorAll('img').forEach(img => {
+                img.style.maxWidth = '100%';
+                img.style.height = 'auto';
+                img.style.margin = '20px 0';
+                img.style.borderRadius = '8px';
+                img.style.boxShadow = '0 2px 10px rgba(0,0,0,0.1)';
+            });
+            
+            // Create headers from styled text
+            clonedElement.querySelectorAll('*').forEach(el => {
+                const style = window.getComputedStyle ? getComputedStyle(el) : el.currentStyle;
+                const fontSize = parseInt(el.style.fontSize) || 16;
+                
+                if (fontSize > 20 && el.textContent.trim()) {
+                    el.style.fontWeight = 'bold';
+                    el.style.color = '#2c3e50';
+                    el.style.marginTop = '25px';
+                    el.style.marginBottom = '15px';
+                }
+            });
+            
+            return clonedElement.innerHTML;
+        }
+
+        // Display current slide
+        function displaySlide() {
+            if (slides.length === 0) return;
+            
+            const slideContent = document.getElementById('slide-content');
+            slideContent.innerHTML = slides[currentSlide].content;
+            
+            // Update progress bar
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+            
+            // Update counter
+            document.getElementById('slide-counter').textContent = `${currentSlide + 1} / ${slides.length}`;
+            
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Navigation functions
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                displaySlide();
+                updateNavigation();
+            }
+        }
+
+        function previousSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                displaySlide();
+                updateNavigation();
+            }
+        }
+
+        function updateNavigation() {
+            document.getElementById('prev-btn').disabled = currentSlide === 0;
+            document.getElementById('next-btn').disabled = currentSlide === slides.length - 1;
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    previousSlide();
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    nextSlide();
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    currentSlide = 0;
+                    displaySlide();
+                    updateNavigation();
+                    break;
+                case 'End':
+                    e.preventDefault();
+                    currentSlide = slides.length - 1;
+                    displaySlide();
+                    updateNavigation();
+                    break;
+            }
+        });
+
+        // Show error message
+        function showError(message) {
+            const slideContent = document.getElementById('slide-content');
+            slideContent.innerHTML = `
+                <div class="error-message">
+                    <i class="bi-exclamation-triangle-fill text-danger" style="font-size: 3rem;"></i>
+                    <h4 class="mt-3">${message}</h4>
+                    <p>Please try again or contact support if the problem persists.</p>
+                    <button class="btn btn-primary mt-3" onclick="location.reload()">
+                        <i class="bi-arrow-clockwise"></i> Retry
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', loadPresentation);
+    </script>
+</body>
+</html>
