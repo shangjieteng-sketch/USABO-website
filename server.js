@@ -142,6 +142,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/textbook', require('./routes/textbook'));
 app.use('/api/experiments', require('./routes/experiments'));
 app.use('/api/problems', require('./routes/problems'));
+app.use('/api/mcq', require('./routes/mcq'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/community', require('./routes/community'));
 app.use('/documents', require('./routes/documents'));
