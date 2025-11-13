@@ -8,6 +8,7 @@ const rateLimit = require('express-rate-limit');
 const passport = require('passport');
 const session = require('express-session');
 const { initDatabase } = require('./database/init');
+const AnalyticsReporter = require('./services/analytics-reporter');
 require('dotenv').config();
 
 // Check if running in serverless environment (Vercel or AWS Lambda)
@@ -114,6 +115,25 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Middleware to inject Google Analytics ID into HTML files
+app.use('*.html', (req, res, next) => {
+  const originalSend = res.send;
+  res.send = function(data) {
+    if (typeof data === 'string' && data.includes('<head>')) {
+      const gaId = process.env.GOOGLE_ANALYTICS_ID;
+      if (gaId) {
+        // Inject Google Analytics ID as a global variable
+        data = data.replace(
+          '<head>',
+          `<head><script>window.GOOGLE_ANALYTICS_ID = '${gaId}';</script>`
+        );
+      }
+    }
+    originalSend.call(this, data);
+  };
+  next();
+});
+
 // Static files
 app.use(express.static('public'));
 
@@ -164,6 +184,26 @@ async function startServer() {
     // Initialize database
     await initDatabase();
     console.log('Database initialized successfully');
+    
+    // Initialize analytics reporter (only in production and not serverless)
+    if (process.env.NODE_ENV === 'production' && !isServerless && process.env.GOOGLE_ANALYTICS_PROPERTY_ID) {
+      try {
+        const analyticsReporter = new AnalyticsReporter();
+        analyticsReporter.startScheduledReports();
+        
+        // Add a test route for manual reports
+        app.get('/admin/send-analytics-report', async (req, res) => {
+          try {
+            await analyticsReporter.sendTestReport();
+            res.json({ success: true, message: 'Test report sent successfully!' });
+          } catch (error) {
+            res.status(500).json({ success: false, error: error.message });
+          }
+        });
+      } catch (error) {
+        console.error('Failed to initialize analytics reporter:', error);
+      }
+    }
     
     // Only start server if not in Vercel (Vercel handles this)
     if (!isServerless) {

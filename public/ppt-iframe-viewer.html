@@ -4,6 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Campbell Biology Chapter - USABO</title>
+    
+    <!-- Google Analytics -->
+    <script>
+        // Google Analytics setup
+        if (window.GOOGLE_ANALYTICS_ID) {
+            const gaScript = document.createElement('script');
+            gaScript.async = true;
+            gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${window.GOOGLE_ANALYTICS_ID}`;
+            document.head.appendChild(gaScript);
+            
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', window.GOOGLE_ANALYTICS_ID);
+        }
+    </script>
+    
     <link href="css/bootstrap.min.css" rel="stylesheet">
     <link href="css/bootstrap-icons.css" rel="stylesheet">
     <style>

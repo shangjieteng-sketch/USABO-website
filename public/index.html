@@ -7,6 +7,23 @@
         <meta name="author" content="USABO Team">
         <title>USABO Study Platform</title>
 
+        <!-- Google Analytics -->
+        <!-- Google Analytics will be injected by server -->
+        <script>
+            // Google Analytics setup
+            if (window.GOOGLE_ANALYTICS_ID) {
+                const gaScript = document.createElement('script');
+                gaScript.async = true;
+                gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${window.GOOGLE_ANALYTICS_ID}`;
+                document.head.appendChild(gaScript);
+                
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', window.GOOGLE_ANALYTICS_ID);
+            }
+        </script>
+
         <!-- CSS FILES -->        
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
