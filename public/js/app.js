@@ -681,9 +681,9 @@ async function loadCampbellPPT() {
                         <p>Campbell Biology - Chapter ${file.chapter}</p>
                     </div>
                     <div class="chapter-actions">
-                        <button class="preview-btn">
+                        <a href="/ppt-iframe-viewer.html?chapter=${file.chapter}&title=${encodeURIComponent(file.title)}" class="preview-btn" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-eye"></i> View Chapter
-                        </button>
+                        </a>
                         <a href="${file.downloadUrl}" download class="download-link">
                             <i class="fas fa-download"></i>
                         </a>
@@ -691,23 +691,7 @@ async function loadCampbellPPT() {
                 </div>
             `).join('');
             
-            // Add event delegation for Campbell PPT items
-            list.addEventListener('click', (e) => {
-                const pptItem = e.target.closest('.ppt-chapter-item');
-                const downloadLink = e.target.closest('.download-link');
-                
-                if (downloadLink) {
-                    // Let the download link work normally, don't prevent default
-                    return;
-                }
-                
-                if (pptItem) {
-                    const title = pptItem.dataset.title;
-                    const chapter = parseInt(pptItem.dataset.chapter);
-                    // Navigate to dedicated PPT viewer page
-                    window.location.href = `/ppt-viewer.html?chapter=${chapter}&title=${encodeURIComponent(title)}`;
-                }
-            });
+            // Event delegation no longer needed - using direct links
         } else {
             console.warn('No files received from Campbell PPT API');
             const list = document.getElementById('campbellPptList');

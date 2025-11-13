@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campbell Biology Chapter - USABO</title>
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        body { margin: 0; font-family: 'Open Sans', sans-serif; background: #f8f9fa; }
+        .navbar { background: #13547a !important; }
+        .navbar-brand { color: white !important; }
+        .nav-link { color: white !important; }
+        
+        .chapter-header {
+            background: linear-gradient(135deg, #13547a 0%, #0d4057 100%);
+            color: white;
+            padding: 20px 0;
+            margin-bottom: 0;
+        }
+        
+        .iframe-container {
+            width: 100%;
+            height: calc(100vh - 120px);
+            border: none;
+            background: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ppt-iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+        
+        .error-message {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 400px;
+            flex-direction: column;
+            text-align: center;
+            background: white;
+            border-radius: 12px;
+            margin: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            padding: 40px;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 400px;
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .fallback-options {
+            background: white;
+            border-radius: 12px;
+            margin: 20px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .viewer-option {
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: all 0.3s;
+        }
+        
+        .viewer-option:hover {
+            border-color: #13547a;
+            background: #f8f9fa;
+        }
+        
+        .viewer-option h5 {
+            color: #13547a;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="bi-dna"></i>
+                <span>USABO</span>
+            </a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav ms-lg-5 me-lg-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#section_1">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/#section_3">Textbook</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/documents">Documents</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="chapter-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 id="chapter-title" class="mb-0">Loading chapter...</h1>
+                    <small>Campbell Biology</small>
+                </div>
+                <div>
+                    <a href="/#section_3" class="btn btn-outline-light me-2">
+                        <i class="bi-arrow-left"></i> Back to Textbook
+                    </a>
+                    <a id="download-link" href="#" class="btn btn-light" download style="display: none;">
+                        <i class="bi-download"></i> Download PPT
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="viewer-content">
+        <div class="loading-spinner">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Loading presentation viewer...</p>
+        </div>
+    </div>
+
+    <script>
+        let chapterData = null;
+
+        // Get URL parameters
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                chapter: params.get('chapter'),
+                title: params.get('title')
+            };
+        }
+
+        // Load presentation data
+        async function loadPresentation() {
+            const { chapter, title } = getUrlParams();
+            
+            if (!chapter) {
+                showError('Invalid chapter parameter');
+                return;
+            }
+
+            try {
+                // Fetch Campbell PPT data from API
+                const response = await fetch(`${window.location.origin}/api/textbook/campbell-ppt`);
+                const data = await response.json();
+                
+                if (!data.files || data.files.length === 0) {
+                    showError('No presentations available');
+                    return;
+                }
+                
+                // Find the chapter by number
+                chapterData = data.files.find(file => file.chapter === parseInt(chapter));
+                
+                if (!chapterData) {
+                    showError(`Chapter ${chapter} not found`);
+                    return;
+                }
+
+                // Update page title and header
+                const displayTitle = chapterData.title || title || `Chapter ${chapter}`;
+                document.title = `${displayTitle} - Campbell Biology - USABO`;
+                document.getElementById('chapter-title').textContent = displayTitle;
+
+                // Show download link
+                if (chapterData.downloadUrl && chapterData.downloadUrl !== '#') {
+                    document.getElementById('download-link').href = chapterData.downloadUrl;
+                    document.getElementById('download-link').style.display = 'inline-block';
+                }
+
+                // Try different viewer options
+                await tryViewerOptions();
+
+            } catch (error) {
+                console.error('Error loading presentation:', error);
+                showError('Failed to load presentation data');
+            }
+        }
+
+        // Try different viewer options in order of preference
+        async function tryViewerOptions() {
+            const viewerContent = document.getElementById('viewer-content');
+            
+            // Option 1: Try Office Online viewer with localhost URL
+            if (chapterData.downloadUrl && chapterData.downloadUrl !== '#') {
+                const fullUrl = chapterData.downloadUrl.startsWith('http') ? 
+                    chapterData.downloadUrl : 
+                    `${window.location.origin}${chapterData.downloadUrl}`;
+                
+                console.log('Trying Office Online viewer with URL:', fullUrl);
+                
+                const officeUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
+                
+                // Create iframe
+                viewerContent.innerHTML = `
+                    <div class="iframe-container">
+                        <iframe id="office-iframe" class="ppt-iframe" src="${officeUrl}" 
+                                onload="handleIframeLoad()" onerror="handleIframeError()">
+                        </iframe>
+                    </div>
+                `;
+                
+                // Set a timeout to check if iframe loads successfully
+                setTimeout(() => {
+                    checkIframeStatus();
+                }, 3000);
+                
+                return;
+            }
+            
+            // Option 2: Try Google Docs viewer
+            if (chapterData.downloadUrl && chapterData.downloadUrl !== '#') {
+                const fullUrl = chapterData.downloadUrl.startsWith('http') ? 
+                    chapterData.downloadUrl : 
+                    `${window.location.origin}${chapterData.downloadUrl}`;
+                
+                console.log('Trying Google Docs viewer with URL:', fullUrl);
+                
+                const googleUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`;
+                
+                viewerContent.innerHTML = `
+                    <div class="iframe-container">
+                        <iframe id="google-iframe" class="ppt-iframe" src="${googleUrl}" 
+                                onload="handleIframeLoad()" onerror="handleIframeError()">
+                        </iframe>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    checkIframeStatus();
+                }, 3000);
+                
+                return;
+            }
+            
+            // Fallback: Show viewer options
+            showViewerOptions();
+        }
+
+        // Handle iframe load success
+        function handleIframeLoad() {
+            console.log('Iframe loaded successfully');
+        }
+
+        // Handle iframe load error
+        function handleIframeError() {
+            console.log('Iframe failed to load');
+            showViewerOptions();
+        }
+
+        // Check if iframe actually loaded content
+        function checkIframeStatus() {
+            const iframe = document.querySelector('#office-iframe, #google-iframe');
+            if (iframe) {
+                try {
+                    // Try to access iframe content (will fail for cross-origin)
+                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+                    if (iframeDoc && iframeDoc.body && iframeDoc.body.innerHTML.length > 100) {
+                        console.log('Iframe content loaded successfully');
+                        return;
+                    }
+                } catch (e) {
+                    // Cross-origin restriction - this is actually expected for external viewers
+                    console.log('Cross-origin iframe - assuming successful load');
+                    return;
+                }
+            }
+            
+            console.log('Iframe may not have loaded properly, showing alternatives');
+            // Don't automatically fall back - let user try the options
+        }
+
+        // Show alternative viewer options
+        function showViewerOptions() {
+            const viewerContent = document.getElementById('viewer-content');
+            const fullUrl = chapterData.downloadUrl && chapterData.downloadUrl !== '#' ? 
+                (chapterData.downloadUrl.startsWith('http') ? 
+                    chapterData.downloadUrl : 
+                    `${window.location.origin}${chapterData.downloadUrl}`) : null;
+            
+            viewerContent.innerHTML = `
+                <div class="fallback-options">
+                    <h3><i class="bi-display"></i> PowerPoint Viewer Options</h3>
+                    <p class="text-muted">Choose how you'd like to view this presentation:</p>
+                    
+                    ${fullUrl ? `
+                        <div class="viewer-option">
+                            <h5><i class="bi-microsoft"></i> Office Online Viewer</h5>
+                            <p>View the presentation using Microsoft's online PowerPoint viewer.</p>
+                            <button class="btn btn-primary" onclick="tryOfficeViewer()">
+                                <i class="bi-play-circle"></i> Open in Office Online
+                            </button>
+                        </div>
+                        
+                        <div class="viewer-option">
+                            <h5><i class="bi-google"></i> Google Docs Viewer</h5>
+                            <p>View the presentation using Google's document viewer.</p>
+                            <button class="btn btn-success" onclick="tryGoogleViewer()">
+                                <i class="bi-play-circle"></i> Open in Google Viewer
+                            </button>
+                        </div>
+                        
+                        <div class="viewer-option">
+                            <h5><i class="bi-download"></i> Download & View Locally</h5>
+                            <p>Download the PowerPoint file and open it with PowerPoint or a compatible viewer.</p>
+                            <a href="${chapterData.downloadUrl}" class="btn btn-outline-primary" download>
+                                <i class="bi-download"></i> Download PPT File
+                            </a>
+                        </div>
+                    ` : `
+                        <div class="viewer-option">
+                            <h5><i class="bi-exclamation-triangle"></i> File Not Available</h5>
+                            <p>The PowerPoint file for this chapter is not currently available.</p>
+                            <a href="/#section_3" class="btn btn-outline-primary">
+                                <i class="bi-arrow-left"></i> Back to Chapter List
+                            </a>
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        // Try Office Online viewer
+        function tryOfficeViewer() {
+            const fullUrl = chapterData.downloadUrl.startsWith('http') ? 
+                chapterData.downloadUrl : 
+                `${window.location.origin}${chapterData.downloadUrl}`;
+            
+            const officeUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
+            
+            document.getElementById('viewer-content').innerHTML = `
+                <div class="iframe-container">
+                    <iframe class="ppt-iframe" src="${officeUrl}"></iframe>
+                </div>
+            `;
+        }
+
+        // Try Google Docs viewer
+        function tryGoogleViewer() {
+            const fullUrl = chapterData.downloadUrl.startsWith('http') ? 
+                chapterData.downloadUrl : 
+                `${window.location.origin}${chapterData.downloadUrl}`;
+            
+            const googleUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`;
+            
+            document.getElementById('viewer-content').innerHTML = `
+                <div class="iframe-container">
+                    <iframe class="ppt-iframe" src="${googleUrl}"></iframe>
+                </div>
+            `;
+        }
+
+        // Show error message
+        function showError(message) {
+            const viewerContent = document.getElementById('viewer-content');
+            viewerContent.innerHTML = `
+                <div class="error-message">
+                    <i class="bi-exclamation-triangle-fill text-danger" style="font-size: 3rem;"></i>
+                    <h4 class="mt-3">${message}</h4>
+                    <p>Please try again or contact support if the problem persists.</p>
+                    <button class="btn btn-primary mt-3" onclick="location.reload()">
+                        <i class="bi-arrow-clockwise"></i> Retry
+                    </button>
+                </div>
+            `;
+        }
+
+        // Initialize when page loads
+        document.addEventListener('DOMContentLoaded', loadPresentation);
+    </script>
+</body>
+</html>
