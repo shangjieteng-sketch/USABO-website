@@ -1696,3 +1696,161 @@ body {
         align-items: center;
     }
 }
+
+/* PPT List Styles - Campbell Biology and USABO Slides */
+.campbell-ppt-list,
+.usabo-slide-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+    padding: 1rem 0;
+}
+
+.ppt-chapter-item {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow-light);
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.ppt-chapter-item:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-medium);
+    border-color: var(--primary-color);
+}
+
+.ppt-chapter-item .chapter-number {
+    background: var(--primary-gradient);
+    color: white;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.ppt-chapter-item .chapter-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.ppt-chapter-item .chapter-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    font-weight: 600;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ppt-chapter-item .chapter-content p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.ppt-chapter-item .chapter-actions {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.ppt-chapter-item .preview-btn {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: var(--border-radius-small);
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ppt-chapter-item .preview-btn:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+.ppt-chapter-item .download-link {
+    background: var(--light-color);
+    color: var(--text-secondary);
+    padding: 0.5rem;
+    border-radius: var(--border-radius-small);
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+
+.ppt-chapter-item .download-link:hover {
+    background: #d5dbdb;
+    color: var(--text-primary);
+    transform: translateY(-1px);
+}
+
+.error {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    background: white;
+    border-radius: var(--border-radius);
+    margin: 1rem 0;
+}
+
+.error p {
+    margin-bottom: 1rem;
+}
+
+.retry-btn {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius-small);
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.retry-btn:hover {
+    background: #2980b9;
+    transform: translateY(-1px);
+}
+
+/* Responsive adjustments for PPT lists */
+@media (max-width: 768px) {
+    .campbell-ppt-list,
+    .usabo-slide-list {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+    }
+    
+    .ppt-chapter-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .ppt-chapter-item .chapter-content {
+        text-align: center;
+    }
+    
+    .ppt-chapter-item .chapter-content h4 {
+        white-space: normal;
+    }
+}

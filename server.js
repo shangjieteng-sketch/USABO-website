@@ -136,6 +136,7 @@ app.use('*.html', (req, res, next) => {
 
 // Static files
 app.use(express.static('public'));
+app.use('/usabo-slide', express.static('USABO-Slide'));
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));

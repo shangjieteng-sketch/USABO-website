@@ -656,6 +656,64 @@ window.handleLogout = function() {
     alert('Logged out successfully');
 }
 
+// Load USABO Slide PowerPoint files
+async function loadUSABOSlides() {
+    try {
+        console.log('Loading USABO Slide PPT files...');
+        const response = await fetch(`${window.location.origin}/api/textbook/usabo-slide-ppt`);
+        console.log('Response status:', response.status);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log('USABO Slide data received:', data);
+        
+        const list = document.getElementById('usaboSlideList');
+        if (list && data.files) {
+            console.log('Rendering', data.files.length, 'USABO slides');
+            list.innerHTML = data.files.map((file, index) => `
+                <div class="ppt-chapter-item" data-url="${encodeURIComponent(file.downloadUrl || file.filename || '')}" data-title="${file.title.replace(/"/g, '&quot;')}" data-slide="${file.slideNumber}">
+                    <div class="chapter-number">${file.slideNumber}</div>
+                    <div class="chapter-content">
+                        <h4>${file.title}</h4>
+                        <p>USABO Slide - Presentation ${file.slideNumber}</p>
+                    </div>
+                    <div class="chapter-actions">
+                        <a href="/usabo-slide-viewer.html?slide=${file.slideNumber}&title=${encodeURIComponent(file.title)}" class="preview-btn" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-eye"></i> View Slide
+                        </a>
+                        <a href="${file.downloadUrl}" download class="download-link">
+                            <i class="fas fa-download"></i>
+                        </a>
+                    </div>
+                </div>
+            `).join('');
+            
+        } else {
+            console.warn('No files received from USABO Slide API');
+            const list = document.getElementById('usaboSlideList');
+            if (list) {
+                list.innerHTML = '<div class="error">No USABO slide files found</div>';
+            }
+        }
+    } catch (error) {
+        console.error('Error loading USABO Slide files:', error);
+        const list = document.getElementById('usaboSlideList');
+        if (list) {
+            list.innerHTML = `
+                <div class="error">
+                    <p>Failed to load slide files</p>
+                    <button class="retry-btn usabo-retry" style="padding: 10px 20px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">
+                        Retry Loading
+                    </button>
+                </div>
+            `;
+        }
+    }
+}
+
 // Load Campbell Biology PowerPoint files
 async function loadCampbellPPT() {
     try {
@@ -762,9 +820,25 @@ function closePPTModal() {
 document.addEventListener('DOMContentLoaded', () => {
     initializeDashboardNavigation();
     loadCampbellPPT();
+    loadUSABOSlides();
     
-    // Also add click listener for textbook navigation to ensure Campbell loads
-    const textbookNavLink = document.querySelector('a[href="#section_3"]');
+    // Add click listener for USABO Slides navigation
+    const usaboSlideNavLink = document.querySelector('a[href="#section_3"]');
+    if (usaboSlideNavLink) {
+        usaboSlideNavLink.addEventListener('click', () => {
+            // Delay to allow smooth scroll, then ensure USABO slides are loaded
+            setTimeout(() => {
+                const usaboList = document.getElementById('usaboSlideList');
+                if (usaboList && usaboList.innerHTML.includes('Loading slides...')) {
+                    console.log('Re-loading USABO Slides after navigation...');
+                    loadUSABOSlides();
+                }
+            }, 500);
+        });
+    }
+    
+    // Add click listener for textbook navigation to ensure Campbell loads
+    const textbookNavLink = document.querySelector('a[href="#section_4"]');
     if (textbookNavLink) {
         textbookNavLink.addEventListener('click', () => {
             // Delay to allow smooth scroll, then ensure Campbell is loaded
@@ -826,6 +900,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('campbell-retry')) {
             console.log('Retrying Campbell PPT load...');
             loadCampbellPPT();
+        }
+        
+        // Handle USABO Slide retry button
+        if (e.target.classList.contains('usabo-retry')) {
+            console.log('Retrying USABO Slide load...');
+            loadUSABOSlides();
         }
     });
 });

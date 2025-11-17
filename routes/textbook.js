@@ -448,4 +448,53 @@ router.get('/diagrams', (req, res) => {
     }
 });
 
+// Get USABO-Slide PowerPoint files
+router.get('/usabo-slide-ppt', (req, res) => {
+    try {
+        const fs = require('fs');
+        const path = require('path');
+        const slideDir = path.join(__dirname, '..', 'USABO-Slide');
+        
+        let pptFiles = [];
+        
+        if (fs.existsSync(slideDir)) {
+            const files = fs.readdirSync(slideDir);
+            pptFiles = files
+                .filter(file => file.endsWith('.ppt') || file.endsWith('.pptx'))
+                .map((file, index) => {
+                    const name = file.replace(/\.(ppt|pptx)$/, '');
+                    
+                    return {
+                        id: index + 1,
+                        filename: file,
+                        title: name,
+                        slideNumber: index + 1,
+                        downloadUrl: `/usabo-slide/${file}`,
+                        type: 'local'
+                    };
+                });
+            
+            // Shuffle the array for random order
+            for (let i = pptFiles.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pptFiles[i], pptFiles[j]] = [pptFiles[j], pptFiles[i]];
+            }
+            
+            // Reassign slide numbers after shuffle
+            pptFiles.forEach((file, index) => {
+                file.slideNumber = index + 1;
+                file.id = index + 1;
+            });
+        }
+        
+        res.json({
+            files: pptFiles,
+            total: pptFiles.length
+        });
+    } catch (error) {
+        console.error('Error fetching USABO-Slide PPT files:', error);
+        res.status(500).json({ message: 'Failed to fetch USABO-Slide PPT files' });
+    }
+});
+
 module.exports = router;
