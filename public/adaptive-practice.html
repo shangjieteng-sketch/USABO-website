@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biology Unit 1 - Adaptive Practice | USABO Study Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .question-container {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            color: white;
+            margin-bottom: 2rem;
+        }
+        
+        .question-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+        
+        .question-header {
+            display: flex;
+            justify-content-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #f8f9fa;
+        }
+        
+        .question-number {
+            background: #667eea;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .question-stem {
+            color: #2d3436;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            line-height: 1.6;
+        }
+        
+        .choice-button {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            color: #2d3436;
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            text-align: left;
+            display: block;
+            width: 100%;
+        }
+        
+        .choice-button:hover {
+            background: #e3f2fd;
+            border-color: #667eea;
+            color: #2d3436;
+            transform: translateY(-1px);
+        }
+        
+        .choice-button.selected {
+            background: #667eea;
+            border-color: #5a6fd8;
+            color: white;
+        }
+        
+        .choice-button.correct {
+            background: #28a745 !important;
+            border-color: #1e7e34 !important;
+            color: white !important;
+        }
+        
+        .choice-button.incorrect {
+            background: #dc3545 !important;
+            border-color: #c82333 !important;
+            color: white !important;
+        }
+        
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .result-correct {
+            border-left: 5px solid #28a745;
+        }
+        
+        .result-incorrect {
+            border-left: 5px solid #dc3545;
+        }
+        
+        .result-header {
+            display: flex;
+            justify-content-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .result-status {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .result-status.correct {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .result-status.incorrect {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .explanation-box {
+            background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #2d3436;
+        }
+        
+        .progress-container {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .concept-badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            margin: 3px;
+        }
+        
+        .concept-mastered {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .concept-learning {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .concept-new {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+        }
+        
+        .btn-next {
+            background: linear-gradient(135deg, #00b894, #00cec9);
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,184,148,0.3);
+            color: white;
+        }
+        
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #00b894, #00cec9);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-dna me-2"></i>USABO Study Platform
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/adaptive-practice.html">Adaptive Practice</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <!-- Header -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h1 class="text-center mb-3">
+                    <i class="fas fa-brain text-primary me-2"></i>
+                    Biology Unit 1: Adaptive Practice
+                </h1>
+                <p class="text-center text-muted">
+                    Campbell Biology Chapter 1 - Evolution, the Themes of Biology, and Scientific Inquiry
+                </p>
+            </div>
+        </div>
+
+        <!-- Progress Section -->
+        <div id="progressSection" class="progress-container" style="display: none;">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h5 class="mb-3">Your Progress</h5>
+                    <div class="progress mb-3" style="height: 8px;">
+                        <div id="progressBar" class="progress-bar bg-success" role="progressbar" style="width: 0%"></div>
+                    </div>
+                    <div id="conceptBadges"></div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="score-circle mx-auto" id="scoreCircle">0%</div>
+                    <small class="text-muted mt-2 d-block">Mastery Score</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Questions Section (5 questions) -->
+        <div id="questionsSection" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="text-center mb-3">
+                        <i class="fas fa-list-ol text-primary me-2"></i>
+                        Question Set <span id="questionSetNumber">1</span>
+                    </h4>
+                    <p class="text-center text-muted">Answer all 5 questions below, then submit your answers</p>
+                </div>
+            </div>
+            
+            <div id="questionsContainer"></div>
+            
+            <div class="text-center mt-4">
+                <button id="submitBtn" class="btn btn-primary btn-lg me-3" disabled>
+                    <i class="fas fa-check me-2"></i>Submit All Answers
+                </button>
+                <button id="nextSetBtn" class="btn-next btn-lg" style="display: none;">
+                    <i class="fas fa-arrow-right me-2"></i>Next Question Set
+                </button>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" style="display: none;">
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h4 class="text-center mb-3">
+                        <i class="fas fa-chart-line text-success me-2"></i>
+                        Your Results
+                    </h4>
+                </div>
+            </div>
+            
+            <div id="resultsContainer"></div>
+            
+            <div class="text-center mt-4">
+                <button id="continueBtn" class="btn-next btn-lg">
+                    <i class="fas fa-arrow-right me-2"></i>Continue Practice
+                </button>
+            </div>
+        </div>
+
+        <!-- Start Section -->
+        <div id="startSection" class="text-center">
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin fa-3x text-primary mb-4"></i>
+                <h3>Preparing Your Adaptive Practice Session</h3>
+                <p class="text-muted">Setting up personalized questions based on Campbell Biology Chapter 1...</p>
+            </div>
+        </div>
+
+        <!-- Complete Section -->
+        <div id="completeSection" style="display: none;" class="text-center">
+            <div class="progress-container">
+                <i class="fas fa-trophy fa-4x text-warning mb-4"></i>
+                <h2>Congratulations!</h2>
+                <p class="lead">You've made excellent progress on Campbell Biology Chapter 1!</p>
+                <div id="finalStats" class="row my-4"></div>
+                <button id="continueBtn" class="btn btn-primary btn-lg me-3">
+                    <i class="fas fa-redo me-2"></i>Continue Practice
+                </button>
+                <a href="/" class="btn btn-outline-primary btn-lg">
+                    <i class="fas fa-home me-2"></i>Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        class AdaptivePractice {
+            constructor() {
+                this.sessionId = null;
+                this.currentQuestions = [];
+                this.questionSetCount = 0;
+                this.answers = {};
+                this.init();
+            }
+
+            async init() {
+                try {
+                    // Start session
+                    const response = await fetch('/api/adaptive-practice/start', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({})
+                    });
+                    
+                    const data = await response.json();
+                    this.sessionId = data.sessionId;
+                    
+                    // Get first question set
+                    await this.loadNextQuestionSet();
+                    
+                } catch (error) {
+                    console.error('Initialization failed:', error);
+                    this.showError('Failed to start practice session. Please try again.');
+                }
+            }
+
+            async loadNextQuestionSet() {
+                try {
+                    const response = await fetch(`/api/adaptive-practice/questions/${this.sessionId}`);
+                    const data = await response.json();
+                    
+                    this.currentQuestions = data.questions;
+                    this.questionSetCount++;
+                    this.answers = {};
+                    
+                    this.displayQuestions();
+                    this.updateProgress(data.progress);
+                    
+                    // Show questions section, hide others
+                    document.getElementById('startSection').style.display = 'none';
+                    document.getElementById('questionsSection').style.display = 'block';
+                    document.getElementById('progressSection').style.display = 'block';
+                    document.getElementById('resultsSection').style.display = 'none';
+                    
+                } catch (error) {
+                    console.error('Failed to load questions:', error);
+                    this.showError('Failed to load questions. Please try again.');
+                }
+            }
+
+            displayQuestions() {
+                document.getElementById('questionSetNumber').textContent = this.questionSetCount;
+                
+                const questionsContainer = document.getElementById('questionsContainer');
+                questionsContainer.innerHTML = '';
+                
+                this.currentQuestions.forEach((question, index) => {
+                    const questionCard = document.createElement('div');
+                    questionCard.className = 'question-card';
+                    
+                    questionCard.innerHTML = `
+                        <div class="question-header">
+                            <div class="question-number">Question ${index + 1}</div>
+                        </div>
+                        <div class="question-stem">${question.stem}</div>
+                        <div class="choices-container" id="choices-${question.id}"></div>
+                    `;
+                    
+                    questionsContainer.appendChild(questionCard);
+                    
+                    // Add choices for this question
+                    const choicesContainer = document.getElementById(`choices-${question.id}`);
+                    question.choices.forEach(choice => {
+                        const button = document.createElement('button');
+                        button.className = 'choice-button';
+                        button.innerHTML = `<strong>${choice.id}.</strong> ${choice.text}`;
+                        button.onclick = () => this.selectChoice(question.id, choice.id, button);
+                        choicesContainer.appendChild(button);
+                    });
+                });
+                
+                // Reset state
+                this.updateSubmitButton();
+            }
+
+            selectChoice(questionId, choiceId, button) {
+                // Remove previous selection for this question
+                const questionChoices = button.parentElement.querySelectorAll('.choice-button');
+                questionChoices.forEach(btn => {
+                    btn.classList.remove('selected');
+                });
+                
+                // Select current choice
+                button.classList.add('selected');
+                this.answers[questionId] = choiceId;
+                
+                this.updateSubmitButton();
+            }
+
+            updateSubmitButton() {
+                const allAnswered = this.currentQuestions.every(q => this.answers[q.id]);
+                document.getElementById('submitBtn').disabled = !allAnswered;
+            }
+
+            async submitAnswers() {
+                if (Object.keys(this.answers).length !== this.currentQuestions.length) return;
+                
+                try {
+                    const response = await fetch(`/api/adaptive-practice/answers/${this.sessionId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ answers: this.answers })
+                    });
+                    
+                    const data = await response.json();
+                    
+                    this.showResults(data.results);
+                    this.updateProgress(data.overallProgress);
+                    
+                } catch (error) {
+                    console.error('Failed to submit answers:', error);
+                    this.showError('Failed to submit answers. Please try again.');
+                }
+            }
+
+            showResults(results) {
+                // Hide questions section, show results
+                document.getElementById('questionsSection').style.display = 'none';
+                document.getElementById('resultsSection').style.display = 'block';
+                
+                const resultsContainer = document.getElementById('resultsContainer');
+                resultsContainer.innerHTML = '';
+                
+                results.forEach((result, index) => {
+                    const resultCard = document.createElement('div');
+                    resultCard.className = `result-card ${result.correct ? 'result-correct' : 'result-incorrect'}`;
+                    
+                    let content = `
+                        <div class="result-header">
+                            <h6 class="mb-0">Question ${index + 1}</h6>
+                            <span class="result-status ${result.correct ? 'correct' : 'incorrect'}">
+                                ${result.correct ? '✓ Correct' : '✗ Incorrect'}
+                            </span>
+                        </div>
+                        <div class="mb-2"><strong>Question:</strong> ${result.stem}</div>
+                        <div class="mb-2"><strong>Your Answer:</strong> ${result.userAnswer}</div>
+                        <div class="mb-3"><strong>Correct Answer:</strong> ${result.correctAnswer}</div>
+                    `;
+                    
+                    if (result.explanation) {
+                        content += `
+                            <div class="explanation-box mt-3">
+                                <h6><i class="fas fa-lightbulb me-2"></i>Review: ${result.explanation.conceptName}</h6>
+                                <div class="mb-2"><strong>Concept:</strong> ${result.explanation.conceptDefinition}</div>
+                                <div class="mb-2"><strong>Review:</strong> ${result.explanation.review}</div>
+                                <div>
+                                    <strong>Common Misconceptions:</strong>
+                                    <ul class="mt-1 mb-0">
+                                        ${result.explanation.misconceptions.map(m => `<li>${m}</li>`).join('')}
+                                    </ul>
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    resultCard.innerHTML = content;
+                    resultsContainer.appendChild(resultCard);
+                });
+            }
+
+            updateProgress(progress) {
+                if (!progress) return;
+                
+                const percentage = progress.totalConcepts > 0 ? 
+                    Math.round((progress.masteredConcepts / progress.totalConcepts) * 100) : 0;
+                
+                document.getElementById('progressBar').style.width = percentage + '%';
+                document.getElementById('scoreCircle').textContent = percentage + '%';
+            }
+
+            showError(message) {
+                const startSection = document.getElementById('startSection');
+                startSection.innerHTML = `
+                    <div class="alert alert-danger text-center">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        ${message}
+                        <br><br>
+                        <button class="btn btn-primary" onclick="location.reload()">
+                            <i class="fas fa-redo me-2"></i>Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize when page loads
+        let practiceSession;
+        document.addEventListener('DOMContentLoaded', () => {
+            practiceSession = new AdaptivePractice();
+            
+            // Event listeners
+            document.getElementById('submitBtn').onclick = () => practiceSession.submitAnswers();
+            document.getElementById('continueBtn').onclick = () => practiceSession.loadNextQuestionSet();
+        });
+    </script>
+</body>
+</html>

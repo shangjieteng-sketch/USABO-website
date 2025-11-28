@@ -1,0 +1,186 @@
+{
+  "unit": {
+    "id": "bio11_ch1",
+    "name": "Evolution, the Themes of Biology, and Scientific Inquiry",
+    "source": "Campbell Biology, 11e (Urry)"
+  },
+  "concepts": [
+    {
+      "id": "bio11_ch1_levels",
+      "name": "Levels of Biological Organization",
+      "section": "1.1",
+      "definition": "Life is organized in a hierarchy from molecules to the biosphere.",
+      "misconceptions": [
+        "Confusing population with community",
+        "Mixing up cell and organelle",
+        "Thinking ecosystem includes only living things"
+      ]
+    },
+    {
+      "id": "bio11_ch1_cells",
+      "name": "Cells: Prokaryotes vs Eukaryotes",
+      "section": "1.1",
+      "definition": "Organisms are composed of cells, which may be prokaryotic or eukaryotic.",
+      "misconceptions": [
+        "Thinking bacteria have nuclei",
+        "Thinking prokaryotes lack DNA",
+        "Believing all cells have membrane-bound organelles"
+      ]
+    },
+    {
+      "id": "bio11_ch1_gene_expression",
+      "name": "Genetic Information & Gene Expression",
+      "section": "1.1–1.2",
+      "definition": "DNA encodes genetic information that is used to produce RNA and protein.",
+      "misconceptions": [
+        "Thinking proteins encode DNA",
+        "Confusing replication with transcription",
+        "Believing only humans have DNA"
+      ]
+    },
+    {
+      "id": "bio11_ch1_scientific_inquiry",
+      "name": "Scientific Inquiry: Hypotheses & Theories",
+      "section": "1.3",
+      "definition": "Scientific inquiry involves forming hypotheses, testing them, and building theories.",
+      "misconceptions": [
+        "Thinking a theory is a guess",
+        "Believing hypotheses cannot be falsified",
+        "Thinking experiments are always required"
+      ]
+    },
+    {
+      "id": "bio11_ch1_controls",
+      "name": "Controlled Experiments & Variables",
+      "section": "1.3",
+      "definition": "Controlled experiments manipulate only one variable while keeping others constant.",
+      "misconceptions": [
+        "Confusing control group with constants",
+        "Thinking more variables improve experiments",
+        "Thinking sample size does not matter"
+      ]
+    }
+  ],
+  "question_archetypes": [
+    {
+      "id": "definition",
+      "name": "Definition Match",
+      "description": "Match a concept to its correct description."
+    },
+    {
+      "id": "comparison",
+      "name": "Comparison/Contrast",
+      "description": "Identify the property that differs between related ideas."
+    },
+    {
+      "id": "reverse_definition",
+      "name": "Reverse Definition",
+      "description": "Identify an example of a concept."
+    },
+    {
+      "id": "experimental",
+      "name": "Experimental Design",
+      "description": "Questions about dependent variables, controls, and hypothesis testing."
+    }
+  ],
+  "question_templates": [
+    {
+      "id": "tmpl_levels_definition_1",
+      "concept_id": "bio11_ch1_levels",
+      "template_type": "definition",
+      "stem": "Which of the following best describes a biological population?",
+      "choices": {
+        "correct_pattern": "A group of individuals of the same species living in the same area.",
+        "distractor_patterns": [
+          "A group of different species living together.",
+          "All living and nonliving components of an area.",
+          "The entire biosphere."
+        ]
+      }
+    },
+    {
+      "id": "tmpl_cells_definition_1",
+      "concept_id": "bio11_ch1_cells",
+      "template_type": "definition",
+      "stem": "Cells are ______.",
+      "choices": {
+        "correct_pattern": "Characteristic of both prokaryotic and eukaryotic organisms.",
+        "distractor_patterns": [
+          "Found only in multicellular organisms.",
+          "Lacking in bacteria.",
+          "Only found in pairs."
+        ]
+      }
+    },
+    {
+      "id": "tmpl_cells_comparison_1",
+      "concept_id": "bio11_ch1_cells",
+      "template_type": "comparison",
+      "stem": "Compared to eukaryotic cells, prokaryotic cells ______.",
+      "choices": {
+        "correct_pattern": "Are generally smaller and lack membrane-bound organelles.",
+        "distractor_patterns": [
+          "Contain more organelles.",
+          "Have a nucleus.",
+          "Are structurally more complex."
+        ]
+      }
+    },
+    {
+      "id": "tmpl_cells_reverse_1",
+      "concept_id": "bio11_ch1_cells",
+      "template_type": "reverse_definition",
+      "stem": "Which organism has DNA but lacks a nuclear envelope?",
+      "choices": {
+        "correct_pattern": "Archaea.",
+        "distractor_patterns": [
+          "Plants.",
+          "Animals.",
+          "Fungi."
+        ]
+      }
+    },
+    {
+      "id": "tmpl_gene_expression_definition_1",
+      "concept_id": "bio11_ch1_gene_expression",
+      "template_type": "definition",
+      "stem": "The process by which a gene directs the synthesis of a protein is called ______.",
+      "choices": {
+        "correct_pattern": "Gene expression.",
+        "distractor_patterns": [
+          "Replication.",
+          "Mitosis.",
+          "Cloning."
+        ]
+      }
+    },
+    {
+      "id": "tmpl_scientific_inquiry_definition_1",
+      "concept_id": "bio11_ch1_scientific_inquiry",
+      "template_type": "definition",
+      "stem": "How does a scientific theory differ from a hypothesis?",
+      "choices": {
+        "correct_pattern": "A theory is a broad explanation supported by evidence; a hypothesis is a testable, narrower statement.",
+        "distractor_patterns": [
+          "Theories become laws.",
+          "Hypotheses are guesses.",
+          "Theories apply to only one observation."
+        ]
+      }
+    },
+    {
+      "id": "tmpl_controls_experiment_1",
+      "concept_id": "bio11_ch1_controls",
+      "template_type": "experimental",
+      "stem": "In a study on nitrogen fertilizer where one group receives 0 kg/ha, which group is the control?",
+      "choices": {
+        "correct_pattern": "The group receiving 0 kg/ha.",
+        "distractor_patterns": [
+          "The midpoint nitrogen group.",
+          "The highest nitrogen group.",
+          "Any group receiving nitrogen."
+        ]
+      }
+    }
+  ]
+}

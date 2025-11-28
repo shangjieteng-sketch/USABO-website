@@ -146,6 +146,7 @@ app.use('/api/problems', require('./routes/problems'));
 app.use('/api/mcq', require('./routes/mcq'));
 app.use('/api/ai', require('./routes/ai'));
 app.use('/api/community', require('./routes/community'));
+app.use('/api/adaptive-practice', require('./routes/adaptive-practice'));
 app.use('/documents', require('./routes/documents'));
 // Also mount the documents route for the API
 app.use('/', require('./routes/documents'));
