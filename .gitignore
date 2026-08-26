@@ -99,9 +99,12 @@ Thumbs.db
 # Temporary files
 tmp/
 temp/
-.vercel
 
 # Large PowerPoint files (now handled by Git LFS)
 # USABO-Slide/ - removed, now tracked with Git LFS
-# *.pptx - removed, now tracked with Git LFS  
+# *.pptx - removed, now tracked with Git LFS
 # *.ppt - removed, now tracked with Git LFS
+
+# Elastic Beanstalk files (no longer using EB)
+.elasticbeanstalk/
+.ebextensions/

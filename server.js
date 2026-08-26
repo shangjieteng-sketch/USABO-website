@@ -11,8 +11,8 @@ const { initDatabase } = require('./database/init');
 const AnalyticsReporter = require('./services/analytics-reporter');
 require('dotenv').config();
 
-// Check if running in serverless environment (Vercel or AWS Lambda)
-const isServerless = process.env.VERCEL === '1' || process.env.AWS_EXECUTION_ENV;
+// Check if running in serverless environment (AWS Lambda)
+const isServerless = !!process.env.AWS_EXECUTION_ENV;
 
 // Environment validation
 function validateEnvironment() {
@@ -65,8 +65,8 @@ app.use(helmet({
 }));
 
 app.use(cors({
-  origin: process.env.NODE_ENV === 'production' 
-    ? ['https://usabo-website.vercel.app'] // Your production domain
+  origin: process.env.NODE_ENV === 'production'
+    ? [process.env.APP_URL || 'http://localhost:3002'] // Your AWS production domain
     : ['http://localhost:3002', 'http://127.0.0.1:3002'],
   credentials: true,
   optionsSuccessStatus: 200
@@ -80,7 +80,12 @@ const limiter = rateLimit({
   max: process.env.NODE_ENV === 'production' ? 100 : 1000, // More restrictive in production
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for health checks from load balancer
+    const userAgent = req.headers['user-agent'];
+    return userAgent && userAgent.includes('ELB-HealthChecker');
+  }
 });
 
 // More restrictive rate limiting for auth endpoints
