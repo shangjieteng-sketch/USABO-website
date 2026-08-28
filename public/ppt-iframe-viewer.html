@@ -215,94 +215,29 @@
         // Try different viewer options in order of preference
         async function tryViewerOptions() {
             const viewerContent = document.getElementById('viewer-content');
-            
-            // Option 1: Try Office Online viewer with localhost URL
-            if (chapterData.downloadUrl && chapterData.downloadUrl !== '#') {
-                const fullUrl = chapterData.downloadUrl.startsWith('http') ? 
-                    chapterData.downloadUrl : 
-                    `${window.location.origin}${chapterData.downloadUrl}`;
-                
-                console.log('Trying Office Online viewer with URL:', fullUrl);
-                
-                const officeUrl = `https://view.officeapps.live.com/op/embed.aspx?src=${encodeURIComponent(fullUrl)}`;
-                
-                // Create iframe
-                viewerContent.innerHTML = `
-                    <div class="iframe-container">
-                        <iframe id="office-iframe" class="ppt-iframe" src="${officeUrl}" 
-                                onload="handleIframeLoad()" onerror="handleIframeError()">
-                        </iframe>
-                    </div>
-                `;
-                
-                // Set a timeout to check if iframe loads successfully
-                setTimeout(() => {
-                    checkIframeStatus();
-                }, 3000);
-                
-                return;
-            }
-            
-            // Option 2: Try Google Docs viewer
-            if (chapterData.downloadUrl && chapterData.downloadUrl !== '#') {
-                const fullUrl = chapterData.downloadUrl.startsWith('http') ? 
-                    chapterData.downloadUrl : 
-                    `${window.location.origin}${chapterData.downloadUrl}`;
-                
-                console.log('Trying Google Docs viewer with URL:', fullUrl);
-                
-                const googleUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(fullUrl)}&embedded=true`;
-                
-                viewerContent.innerHTML = `
-                    <div class="iframe-container">
-                        <iframe id="google-iframe" class="ppt-iframe" src="${googleUrl}" 
-                                onload="handleIframeLoad()" onerror="handleIframeError()">
-                        </iframe>
-                    </div>
-                `;
-                
-                setTimeout(() => {
-                    checkIframeStatus();
-                }, 3000);
-                
-                return;
-            }
-            
-            // Fallback: Show viewer options
-            showViewerOptions();
-        }
 
-        // Handle iframe load success
-        function handleIframeLoad() {
-            console.log('Iframe loaded successfully');
-        }
-
-        // Handle iframe load error
-        function handleIframeError() {
-            console.log('Iframe failed to load');
-            showViewerOptions();
-        }
-
-        // Check if iframe actually loaded content
-        function checkIframeStatus() {
-            const iframe = document.querySelector('#office-iframe, #google-iframe');
-            if (iframe) {
+            // Option 1: Locally pre-converted PDF (same-origin, no third-party
+            // dependency, doesn't hit Office/Google's size and reliability limits)
+            if (chapterData.filename) {
+                const pdfUrl = `/ppt-pdf/${encodeURIComponent(chapterData.filename.replace(/\.ppt$/i, '.pdf'))}`;
                 try {
-                    // Try to access iframe content (will fail for cross-origin)
-                    const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-                    if (iframeDoc && iframeDoc.body && iframeDoc.body.innerHTML.length > 100) {
-                        console.log('Iframe content loaded successfully');
+                    const headResp = await fetch(pdfUrl, { method: 'HEAD' });
+                    if (headResp.ok) {
+                        console.log('Rendering local PDF:', pdfUrl);
+                        viewerContent.innerHTML = `
+                            <div class="iframe-container">
+                                <iframe class="ppt-iframe" src="${pdfUrl}"></iframe>
+                            </div>
+                        `;
                         return;
                     }
-                } catch (e) {
-                    // Cross-origin restriction - this is actually expected for external viewers
-                    console.log('Cross-origin iframe - assuming successful load');
-                    return;
+                } catch (error) {
+                    console.log('Local PDF not available, falling back:', error);
                 }
             }
-            
-            console.log('Iframe may not have loaded properly, showing alternatives');
-            // Don't automatically fall back - let user try the options
+
+            // Fallback: Let the user pick an external viewer or download
+            showViewerOptions();
         }
 
         // Show alternative viewer options
