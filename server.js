@@ -61,7 +61,8 @@ app.use(helmet({
       connectSrc: ["'self'", "ws:", "wss:"],
       frameSrc: ["'self'", "https://view.officeapps.live.com", "https://docs.google.com"]
     }
-  }
+  },
+  crossOriginResourcePolicy: { policy: 'cross-origin' }
 }));
 
 app.use(cors({
